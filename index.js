@@ -20,7 +20,7 @@ ReactDOM.render(
   <div>
     <h1>Demos for Tenant Information List</h1>
     <br/>
-    <Tabs defaultActiveKey="2" onChange={callback}>
+    <Tabs defaultActiveKey="5" onChange={callback}>
       <TabPane tab="Extendable Table 2" key="1">
         <ul>
           <li><h1> * table is horizontally extendable</h1></li>

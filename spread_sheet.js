@@ -4,8 +4,7 @@ import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 const Option = Select.Option;
 
-const types = ["Tenant EN Name", "Tenant JP Name", "Tenant Account", "VPCs", "remark",
-    "Tenant EN Name", "Tenant JP Name", "Tenant Account", "VPCs", "remark"];
+const types = ["Tenant EN Name", "Tenant JP Name", "Tenant Account", "VPCs", "remark", ];
 const data = [];
 for (let i = 0; i < 100; i++) {
     let record = {};
@@ -31,14 +30,15 @@ export default class SpreadSheet extends React.Component {
           this.columns.push({
               title: val,
               dataIndex: val,
+              width: '100px',
               key: val,
-              sorter: (a, b) =>  this.columnSorter(a, b, val),
-              // render: (text, record) => this.renderColumns(text, record, val),
+              render: (text, record) => this.renderColumns(text, record, val),
           })
       });
       this.columns.push({
           title: 'operation',
           dataIndex: 'operation',
+          fixed: 'right',
           render: (text, record) => {
               const {editable} = record;
               const menu = (

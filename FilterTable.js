@@ -93,6 +93,14 @@ export default class FilterTable extends React.Component {
             title: 'Address',
             dataIndex: 'address',
             key: 'address',
+            filters: [{
+                text: 'London',
+                value: 'London',
+            }, {
+                text: 'New York',
+                value: 'New York',
+            }],
+            onFilter: (value, record) => record.address.indexOf(value) === 0,
         }];
         return <Table columns={columns} dataSource={this.state.data} />;
     }
