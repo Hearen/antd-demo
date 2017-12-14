@@ -2,12 +2,14 @@ import React from 'react';
 import { Table, Input, Icon, Button, Popconfirm, Menu, Dropdown, Select, } from 'antd';
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
+import ColumnSelect from "./ColumnSelect";
+const Search = Input.Search;
 const Option = Select.Option;
 
 const demo = {"name": '丸一鋼管株式会社 - ', "tenantAccount": "ap-northeast - ", "landscape": "develop - ", "convAppCIDR": "", "convAdminCIDR": "",
     "index": '77', "zabbixTenantName": "Demo - ", "hueExitIP": "10.101.136.", "hueRemoteClient": "192.168.183.", "password": "r005-yqvs-"};
 
-const LEFT_LIMIT = 4;
+const LEFT_LIMIT = 2;
 
 export default class TenantSpreadSheet extends React.Component {
     constructor(props) {
@@ -20,28 +22,49 @@ export default class TenantSpreadSheet extends React.Component {
             }
             instance["convAppCIDR"] = '10.101.136.0/22';
             instance["convAdminCIDR"] = '10.200.112.0/24';
-            instance["key"] = i;
+            instance["key"] = instance.name+i;
             data.push(instance);
         }
-        let columns = [];
+        let columnsShown = [];
+        this.allColumns = [];
         for(var key in demo){
-            columns.push({
-                title: key,
-                dataIndex: key,
-                key,
-            })
+            columnsShown.push(key);
         }
-        this.adjustColumns(columns);
+        this.allColumns = [].concat(columnsShown);
+        let columns = this.getColumnsShown(columnsShown);
         this.state = {
             data,
             dataSource: data,
             columns,
             searchValue: "",
+            columnsShown,
+            advancedShown: false,
         };
     }
 
     addActions = () => {
         let newColumns = Object.assign({}, ...this.state.columns);
+    }
+
+    updateColumns = (columnsShown) => {
+        const columns = this.getColumnsShown(columnsShown);
+        const dataSource = [].concat(this.state.dataSource); //update the dataSource along with columns to bind data;
+        this.setState({
+            columns,
+            dataSource,
+        });
+    }
+
+    getColumnsShown = (columnsShown) => {
+        let columns = [];
+        columnsShown.forEach((val) => {
+            columns.push({
+                title: val,
+                dataIndex: val,
+            })
+        });
+        this.adjustColumns(columns);
+        return columns;
     }
 
     //Memo: width, fixed attribute in column and scroll attribute in table is the key to enable fixing sides;
@@ -99,11 +122,15 @@ export default class TenantSpreadSheet extends React.Component {
         })
     }
 
-    handleSearch = (e) => {
-        let searchText = this.state.searchValue;
-        const reg = new RegExp(searchText, 'gi');
-        this.setState({
-            dataSource: this.state.data.map((record) => {
+    handleSearch = (value) => {
+        let searchText = value;
+        let newDataSource;
+        if(searchText.length === 0){
+            newDataSource  = this.state.data.map((record) => record );
+        }
+        else {
+            const reg = new RegExp(searchText, 'gi');
+            newDataSource = this.state.data.map((record) => {
                 let newRecord = Object.assign({}, record);
                 let matchCount = 0;
                 for(let key in record){
@@ -114,54 +141,66 @@ export default class TenantSpreadSheet extends React.Component {
                     }
                     matchCount++;
                     newRecord[key] = (
-                                        <span>
-                                          {(record[key]+'').split(reg).map((text, i) => (
-                                              i > 0 ? [<span className="highlight">{match[0]}</span>, text] : text
-                                          ))}
-                                        </span>
-                                    );
+                        <span>
+                          {(record[key]+'').split(reg).map((text, i) => (
+                              i > 0 ? [<span className="highlight">{match[0]}</span>, text] : text
+                          ))}
+                        </span>
+                    );
                 }
                 return matchCount===0? null : newRecord;
-                // const match = record.name.match(reg);
-                // if (!match) {
-                //     return null;
-                // }
-                // return {
-                //     ...record,
-                //     name: (
-                //         <span>
-                //           {record.name.split(reg).map((text, i) => (
-                //               i > 0 ? [<span className="highlight">{match[0]}</span>, text] : text
-                //           ))}
-                //         </span>
-                //     ),
-                // };
-            }).filter(record => !!record),
-        });
-    }
-
-    handleSearchInputChange = (e) => {
-        let searchValue = e.target.value;
+            }).filter(record => !!record);
+        }
         this.setState({
-            searchValue,
+            dataSource: newDataSource,
         });
     }
 
+    toggleAdvancedPanel = () => {
+        this.setState({
+            advancedShown: !this.state.advancedShown,
+        });
+    }
     render() {
         return (
             <div>
-                <div style={{textAlign: "center", }}>
-                    <Input
-                        onChange={this.handleSearchInputChange}
+                <div style={{textAlign: "left", }}>
+                    <Search
                         size="large"
-                        onPressEnter={this.handleSearch}
-                        style={{width: "30%", margin: "10px"}} />
-                    <Button style={{margin: "10px"}} type="primary" size="large" icon="search">Search</Button>
+                        onSearch={this.handleSearch}
+                        style={{width: "50%", margin: "16px", }} />
+                    <a onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
                 </div>
-                <Table
-                    scroll={{x: '180%', y: 1240}}
-                    dataSource={this.state.dataSource}
-                    columns={this.state.columns}/>
+                <div
+                    style={{
+                        display: this.state.advancedShown? 'block' : 'none',
+                        margin: "0 16px"
+                    }}
+
+                >
+                    <ColumnSelect
+                        allColumns={this.allColumns}
+                        columnsShown={this.state.columnsShown}
+                        updateColumns={this.updateColumns}
+                    />
+                    <Button style={{margin: "0 16px", }} size="large" onClick={()=>{
+                        this.tagAddDialog.showModal();
+                    }} type="primary" icon="plus"> New Tag</Button>
+                </div>
+                <div style={{textAlign: "right"}}>
+                    <Button style={{ margin: "0 5px"}} size="large"  value="default">Export</Button>
+                    <Button style={{ margin: "0 5px"}} size="large" value="primary">Import</Button>
+                </div>
+                <div
+                    style={{margin: "16px"}}
+                >
+                    <Table
+                        scroll={{x: '180%', y: 1240}}
+                        dataSource={this.state.dataSource}
+                        columns={this.state.columns}
+                    />
+                </div>
+                <TagAddDialog ref={tagAdd => { this.tagAddDialog = tagAdd; }}/>
             </div>
         )
     }
