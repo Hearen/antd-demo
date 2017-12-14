@@ -7,7 +7,7 @@ export default class ColumnSelect extends React.Component {
         super(props);
         this.state = {
             allColumns: props.allColumns,
-            columnsShown: props.columnsShown,
+            columnsShown: props.columnsShownArr, //update the columnsShown to columnsShownArr;
         };
         this.updateColumns = props.updateColumns;
     }

@@ -4,26 +4,38 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 export class TagAddDialog extends React.Component {
-    state = {
-        loading: false,
-        visible: false,
+    constructor(props){
+        super(props);
+        this.state = {
+            visible: false,
+            tagName: "",
+        };
+        this.addTag = props.addTag;
     }
+
+    onTagNameChange = (e) => {
+        this.setState({
+            tagName: e.target.value,
+        });
+    }
+
     showModal = () => {
         this.setState({
             visible: true,
         });
     }
-    handleOk = () => {
-        this.setState({ loading: true });
-        setTimeout(() => {
-            this.setState({ loading: false, visible: false });
-        }, 1000);
+    handleOk = () => { //have to check the duplicates;
+        this.addTag(this.state.tagName)
+        this.setState({
+            visible: false,
+        });
     }
+
     handleCancel = () => {
         this.setState({ visible: false });
     }
     render() {
-        const { visible, loading } = this.state;
+        const { visible, } = this.state;
         const types = ["Integer", "Float", "String", "Date", "Number"]
         const children = [];
         types.forEach((val, i) => {
@@ -37,20 +49,21 @@ export class TagAddDialog extends React.Component {
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
-                        <Button key="back" onClick={this.handleCancel}>Cancel</Button>,
-                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                        <Button key="back" size="large" onClick={this.handleCancel}>Cancel</Button>,
+                        <Button key="submit" size="large" type="primary"  onClick={this.handleOk}>
                             Confirm
                         </Button>,
                     ]}
                 >
                     <Form>
                         <FormItem>
-                            <Input placeholder="Tag Name" />
+                            <Input size="large" value={this.state.tagName} placeholder="Tag Name" onChange={this.onTagNameChange}/>
                         </FormItem>
                         <FormItem>
                             <Select
                                 mode="multiple"
                                 allowClear
+                                size="large"
                                 placeholder="Select the valid types"
                                 onChange={this.handleChange}
                             >

@@ -30,20 +30,20 @@ export default class TenantSpreadSheet extends React.Component {
             instance["key"] = instance.name+i; //used to uniquely identify the record;
             data.push(instance);
         }
-        let columnsShown = [];
-        this.allColumns = [];
+        let columnsShownArr = [];
+        this.allColumnsArr = [];
         for(var key in demo){
-            columnsShown.push(key);
+            columnsShownArr.push(key);
         }
-        this.allColumns = [].concat(columnsShown);
-        let columns = this.getColumnsShown(columnsShown);
+        this.allColumnsArr = [].concat(columnsShownArr);
+        let columns = this.initTableColumns(columnsShownArr);
         this.cacheData = data.map(item => ({...item}));
         this.state = {
             data,
             dataSource: data,
             columns,
             searchValue: "",
-            columnsShown,
+            columnsShownArr,
             advancedShown: false,
         };
     }
@@ -52,8 +52,26 @@ export default class TenantSpreadSheet extends React.Component {
         let newColumns = Object.assign({}, ...this.state.columns);
     }
 
-    updateColumns = (columnsShown) => {
-        const columns = this.getColumnsShown(columnsShown);
+    addColumn = (newTag) => { //ToDo: columnsShownArr is not correct (remove some first and then add);
+        const { columnsShownArr, data, dataSource } = this.state;
+        columnsShownArr.push(newTag);
+        const columns = this.initTableColumns(columnsShownArr);
+        data.forEach((val) => {
+            val[newTag] = "";
+        });
+        dataSource.forEach((val) => {
+            val[newTag] = "";
+        });
+        this.setState({
+            columns,
+            columnsShownArr,
+            data,
+            dataSource,
+        });
+    }
+
+    updateColumns = (columnsShownArr) => {
+        const columns = this.initTableColumns(columnsShownArr);
         const dataSource = [].concat(this.state.dataSource); //update the dataSource along with columns to bind data;
         this.setState({
             columns,
@@ -61,9 +79,9 @@ export default class TenantSpreadSheet extends React.Component {
         });
     }
 
-    getColumnsShown = (columnsShown) => {
+    initTableColumns = (columnsShownArr) => {
         let columns = [];
-        columnsShown.forEach((val, i) => {
+        columnsShownArr.forEach((val, i) => {
             columns.push({
                 title: val,
                 dataIndex: val,
@@ -229,7 +247,7 @@ export default class TenantSpreadSheet extends React.Component {
         });
     }
     render() {
-        const scroll_x_width = LEFT_LIMIT*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShown.length-LEFT_LIMIT)*WIDTH;
+        const scroll_x_width = LEFT_LIMIT*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-LEFT_LIMIT)*WIDTH;
         return (
             <div style={{margin: "32px 16px"}}>
                 <div style={{textAlign: "left", }}>
@@ -254,8 +272,8 @@ export default class TenantSpreadSheet extends React.Component {
 
                 >
                     <ColumnSelect
-                        allColumns={this.allColumns}
-                        columnsShown={this.state.columnsShown}
+                        allColumns={this.allColumnsArr}
+                        columnsShownArr={this.state.columnsShownArr}
                         updateColumns={this.updateColumns}
                     />
                 </div>
@@ -269,7 +287,9 @@ export default class TenantSpreadSheet extends React.Component {
                         columns={this.state.columns}
                     />
                 </div>
-                <TagAddDialog ref={tagAdd => { this.tagAddDialog = tagAdd; }}/>
+                <TagAddDialog
+                    addTag={this.addColumn}
+                    ref={tagAdd => { this.tagAddDialog = tagAdd; }}/>
             </div>
         )
     }
