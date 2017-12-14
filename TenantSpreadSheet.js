@@ -75,6 +75,7 @@ export default class TenantSpreadSheet extends React.Component {
         const dataSource = [].concat(this.state.dataSource); //update the dataSource along with columns to bind data;
         this.setState({
             columns,
+            columnsShownArr,
             dataSource,
         });
     }
