@@ -13,7 +13,21 @@ export default class ColumnSelect extends React.Component {
     }
 
     handleChange = (value) => {
+        let columns = value;
+        if(value.length === 0) {
+            value.push(this.lastColumn);
+        }
+        this.setState({
+            columnsShown: value,
+        });
         this.updateColumns(value);
+    }
+
+    handleDeselect = (value) => {
+        const { columnsShown } = this.state;
+        if(columnsShown && columnsShown.length===1 && columnsShown[0]===value){
+            this.lastColumn = value;
+        }
     }
 
     render(){
@@ -29,6 +43,7 @@ export default class ColumnSelect extends React.Component {
                 autoFocus
                 placeholder="Please select columns"
                 defaultValue={this.state.columnsShown}
+                onDeselect={(val) => {this.handleDeselect(val);}}
                 onChange={this.handleChange}
                 style={{ width: '100%', }}
             >
