@@ -25,10 +25,12 @@ export default class ColumnSelect extends React.Component {
             <Select
                 mode="multiple"
                 size="large"
+                allowClear
+                autoFocus
                 placeholder="Please select columns"
                 defaultValue={this.state.columnsShown}
                 onChange={this.handleChange}
-                style={{ width: '70%', }}
+                style={{ width: '100%', }}
             >
                 {options}
             </Select>

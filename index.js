@@ -18,38 +18,38 @@ function callback(key) {
 ReactDOM.render(
     <LocaleProvider locale={enUS}>
   <div>
-    <h1>Demos for Tenant Information List</h1>
-    <br/>
-    <Tabs defaultActiveKey="5" onChange={callback}>
-      <TabPane tab="Extendable Table 2" key="1">
-        <ul>
-          <li><h1> * table is horizontally extendable</h1></li>
-          <li><h1> * details are in the extendable cells</h1></li>
-          <li><h1> * edit in place (shown on mouse hover)</h1></li>
-        </ul>
-        <EditableTable/>
-        <br/>
-      </TabPane>
-      <TabPane tab="Spread Sheet" key="2">
-        <SpreadSheet/>
-        <br/>
-      </TabPane>
-      <TabPane tab="Tenant Spread Sheet" key="5">
-        <TenantSpreadSheet/>
-        <br/>
-      </TabPane>
-      <TabPane tab="Filter Table" key="3">
-        <ul>
-          <li><h1>Filter in two different ways</h1></li>
-        </ul>
-        <FilterTable/>
-        <br/>
-      </TabPane>
-      <TabPane tab="ExpandableTable" key="4">
-        <ExpandableTable/>
-        <br/>
-      </TabPane>
-    </Tabs>
+      <TenantSpreadSheet/>
+    {/*<Tabs defaultActiveKey="5" onChange={callback}>*/}
+      {/*<TabPane tab="Extendable Table 2" key="1">*/}
+        {/*<ul>*/}
+          {/*<li><h1> * table is horizontally extendable</h1></li>*/}
+          {/*<li><h1> * details are in the extendable cells</h1></li>*/}
+          {/*<li><h1> * edit in place (shown on mouse hover)</h1></li>*/}
+        {/*</ul>*/}
+        {/*<EditableTable/>*/}
+        {/*<br/>*/}
+      {/*</TabPane>*/}
+      {/*<TabPane tab="Spread Sheet" key="2">*/}
+        {/*<SpreadSheet/>*/}
+        {/*<br/>*/}
+      {/*</TabPane>*/}
+      {/*<TabPane tab="Tenant Spread Sheet" key="5">*/}
+        {/*<TenantSpreadSheet/>*/}
+        {/*<br/>*/}
+      {/*</TabPane>*/}
+      {/*<TabPane tab="Filter Table" key="3">*/}
+        {/*<ul>*/}
+          {/*<li><h1>Filter in two different ways</h1></li>*/}
+        {/*</ul>*/}
+        {/*<FilterTable/>*/}
+        {/*<br/>*/}
+      {/*</TabPane>*/}
+      {/*<TabPane tab="ExpandableTable" key="4">*/}
+        {/*<ExpandableTable/>*/}
+        {/*<br/>*/}
+      {/*</TabPane>*/}
+    {/*</Tabs>*/}
+    <h1 style={{margin: "32px 16px"}}>* Demo for Tenant Tag Management</h1>
   </div >
     </LocaleProvider>
   , document.getElementById('root'));

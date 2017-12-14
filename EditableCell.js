@@ -8,23 +8,24 @@ export default class EditableCell extends React.Component {
             value: this.props.value,
             editable: this.props.editable,
         }
+        this.recordHandleChange = props.parentHandleChange;
     }
     handleChange = (e) => {
         const value = e.target.value;
         this.setState({ value });
-        this.props.parentHandleChange(value);
+        this.recordHandleChange(value);
     }
+
     check = () => {
         this.setState({ editable: false });
-        if (this.props.onChange) {
-            this.props.onChange(this.state.value);
-        }
     }
+
     edit = () => {
         this.setState({ editable: true });
     }
+
     render() {
-        let { value, editable } = this.state;
+        let { value, editable } = { ...this.state, ...this.props };
         editable = this.state.editable || this.props.editable;
         return (
             <div className="editable-cell">

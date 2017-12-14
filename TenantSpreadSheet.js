@@ -3,26 +3,31 @@ import { Table, Input, Icon, Button, Popconfirm, Menu, Dropdown, Select, } from 
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 import ColumnSelect from "./ColumnSelect";
+import {cloneRecordAfterByKey, sorter as mySorter} from './Tools';
 const Search = Input.Search;
 const Option = Select.Option;
 
 const demo = {"name": '丸一鋼管株式会社 - ', "tenantAccount": "ap-northeast - ", "landscape": "develop - ", "convAppCIDR": "", "convAdminCIDR": "",
+    "name - test - ": '丸一鋼管株式会社 - test - ', "tenantAccount - test - ": "ap-northeast - test - ", "landscape - test ": "develop - test - ", "convAppCIDR-test": "", "convAdminCIDR-test": "",
     "index": '77', "zabbixTenantName": "Demo - ", "hueExitIP": "10.101.136.", "hueRemoteClient": "192.168.183.", "password": "r005-yqvs-"};
 
 const LEFT_LIMIT = 2;
+const LEFT_FIXED_WIDTH = 200;
+const RIGHT_FIXED_WIDTH = 250;
+const WIDTH = 200;
 
 export default class TenantSpreadSheet extends React.Component {
     constructor(props) {
         super(props);
         let data = [];
-        for (let i = 0; i < 200; ++i) {
+        for (let i = 0; i < 100; ++i) {
             let instance = Object.assign({}, demo);
             for(var key in instance){
                 instance[key] = instance[key]+i;
             }
             instance["convAppCIDR"] = '10.101.136.0/22';
             instance["convAdminCIDR"] = '10.200.112.0/24';
-            instance["key"] = instance.name+i;
+            instance["key"] = instance.name+i; //used to uniquely identify the record;
             data.push(instance);
         }
         let columnsShown = [];
@@ -32,6 +37,7 @@ export default class TenantSpreadSheet extends React.Component {
         }
         this.allColumns = [].concat(columnsShown);
         let columns = this.getColumnsShown(columnsShown);
+        this.cacheData = data.map(item => ({...item}));
         this.state = {
             data,
             dataSource: data,
@@ -57,10 +63,13 @@ export default class TenantSpreadSheet extends React.Component {
 
     getColumnsShown = (columnsShown) => {
         let columns = [];
-        columnsShown.forEach((val) => {
+        columnsShown.forEach((val, i) => {
             columns.push({
                 title: val,
                 dataIndex: val,
+                width: WIDTH, //if the alignment is an issue, set the width;
+                sorter: (a, b) => mySorter(a[val], b[val]), //return value is the base for sorting;
+                render: (text, record) => this.renderColumns(text, record, val),
             })
         });
         this.adjustColumns(columns);
@@ -72,50 +81,38 @@ export default class TenantSpreadSheet extends React.Component {
         if(columns.length > LEFT_LIMIT){
             for(var i = 0; i < LEFT_LIMIT; ++i){
                 columns[i]["fixed"] = "left";
-                columns[i]["width"] = "200px";
+                columns[i]["width"] = LEFT_FIXED_WIDTH;
             }
         }
+        delete columns[columns.length-1].width; //let the last column auto-adjust - very important to properly fit in;
         columns.push({
-            title: 'Actions', dataIndex: 'actions', key: 'actions', fixed: 'right', width: "250px",
+            title: 'Actions', dataIndex: 'actions', key: 'actions', fixed: 'right', width: RIGHT_FIXED_WIDTH,
             render: (text, record) => {
                 const {editable} = record;
-                const menu = (
-                    <Menu>
-                        <Menu.Item>
-                            <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">Insert Above</a>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">Insert Below</a>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">Clone</a>
-                        </Menu.Item>
-                    </Menu>
-                );
                 return (
                     <div className="editable-row-operations">
                         {
                             editable ?
                                 <span>
-                                  <a onClick={() => this.save(record.key)}>Save</a>
-                                  <Popconfirm title="Sure to cancel?" onConfirm={() => this.cancel(record.key)}>
-                                    <a>Cancel</a>
+                                  <a onClick={() => this.saveEdit(record.key)}>Save </a>
+                                  <Popconfirm title="Sure to cancel?" onConfirm={() => this.cancelEdit(record.key)}>
+                                    <a> Cancel</a>
                                   </Popconfirm>
                                 </span>
-                                : <a onClick={() => this.edit(record.key)}>
+                                : <a onClick={() => this.editRecord(record.key)}>
                                     <Icon type="edit"/>
                                     Edit</a>
                         }
                         <span> | </span>
-                        <a href="#">
-                            <Icon type="delete"/>
-                            Delete</a>
+                        <Popconfirm title="Sure to delete?" onConfirm={() => this.removeRecord(record.key)}>
+                            <a href="#">
+                                <Icon type="delete"/>
+                                Delete</a>
+                        </Popconfirm>
                         <span> | </span>
-                        <Dropdown overlay={menu}>
-                            <a className="ant-dropdown-link" href="#">
-                                More Options <Icon type="down"/>
-                            </a>
-                        </Dropdown>
+                        <a onClick={() => { this.cloneRecord(record.key); }}>
+                            <Icon type="copy"/>
+                            Clone</a>
                     </div>
                 );
             },
@@ -156,20 +153,98 @@ export default class TenantSpreadSheet extends React.Component {
         });
     }
 
+    renderColumns(text, record, column) {
+        return (
+            <EditableCell
+                editable={record.editable}
+                value={text}
+                parentHandleChange={value => this.handleChange(value, record.key, column)}
+            />
+        );
+    }
+
+
+    handleChange  = (value, key, column) => { //value -> cell current value, key -> record key, column -> column title;
+        const newData = [...this.state.data];
+        const target = newData.filter(item => key === item.key)[0];
+        if (target) {
+            target[column] = value;
+            this.setState({ dataSource: newData });
+        }
+    }
+
+
+    editRecord = (key) => {
+        const newData = [...this.state.dataSource];
+        const target = newData.filter(item => key === item.key)[0];
+        if (target) {
+            target.editable = true;
+            this.setState({dataSource: newData}); //used to re-render when edit button clicked;
+        }
+    }
+    saveEdit = (key) => {
+        let newData = [...this.state.dataSource]; //get the current real-time data;
+        let target = newData.filter(item => key === item.key)[0];
+        if (target) {
+            delete target.editable;
+            this.setState({ dataSource: newData });
+            this.cacheData = newData.map(item => ({ ...item }));
+        }
+    }
+    cancelEdit = (key) => {
+        let newData = [...this.state.dataSource];
+        let target = newData.filter(item => key === item.key)[0];
+        if (target) {
+            Object.assign(target, this.cacheData.filter(item => key === item.key)[0]);
+            delete target.editable;
+            this.setState({ dataSource: newData });
+        }
+    }
+
+    removeRecord = (key) => {
+        const data = this.state.data.filter(item => key!==item.key);
+        const dataSource = this.state.dataSource.filter(item => key!==item.key);
+        this.setState({
+            data,
+            dataSource,
+        })
+    }
+
+    // cloneRecord = (key) => {
+    //     console.log(key);
+    // }
+
+    cloneRecord = (key) => {
+        const newData = cloneRecordAfterByKey(this.state.data, key);
+        const newDataSource = cloneRecordAfterByKey(this.state.dataSource, key);
+        this.setState({
+            data: newData,
+            dataSource: newDataSource,
+        });
+    }
+
     toggleAdvancedPanel = () => {
         this.setState({
             advancedShown: !this.state.advancedShown,
         });
     }
     render() {
+        const scroll_x_width = LEFT_LIMIT*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShown.length-LEFT_LIMIT)*WIDTH;
         return (
-            <div>
+            <div style={{margin: "32px 16px"}}>
                 <div style={{textAlign: "left", }}>
                     <Search
                         size="large"
                         onSearch={this.handleSearch}
                         style={{width: "50%", margin: "16px", }} />
-                    <a onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
+                    <a size="large" onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
+                    <div style={{float: "right", margin: "16px"}}>
+                        <Button style={{ margin: "0 5px"}} size="large"  value="default">Export</Button>
+                        <Button style={{ margin: "0 5px"}} size="large" value="primary">Import</Button>
+                        <Button style={{margin: "0 16px", }} size="large" onClick={()=>{
+                            this.tagAddDialog.showModal();
+                        }} type="primary" icon="plus"> New Tag</Button>
+                    </div>
                 </div>
                 <div
                     style={{
@@ -183,19 +258,13 @@ export default class TenantSpreadSheet extends React.Component {
                         columnsShown={this.state.columnsShown}
                         updateColumns={this.updateColumns}
                     />
-                    <Button style={{margin: "0 16px", }} size="large" onClick={()=>{
-                        this.tagAddDialog.showModal();
-                    }} type="primary" icon="plus"> New Tag</Button>
-                </div>
-                <div style={{textAlign: "right"}}>
-                    <Button style={{ margin: "0 5px"}} size="large"  value="default">Export</Button>
-                    <Button style={{ margin: "0 5px"}} size="large" value="primary">Import</Button>
                 </div>
                 <div
                     style={{margin: "16px"}}
                 >
                     <Table
-                        scroll={{x: '180%', y: 1240}}
+                        scroll={{x: scroll_x_width, y: '90vh'}}
+                        bordered
                         dataSource={this.state.dataSource}
                         columns={this.state.columns}
                     />
