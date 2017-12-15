@@ -75,6 +75,7 @@ export default class TenantSpreadSheet extends React.Component {
         const dataSource = [].concat(this.state.dataSource); //update the dataSource along with columns to bind data;
         this.setState({
             columns,
+            columnsShownArr,
             dataSource,
         });
     }
@@ -102,7 +103,9 @@ export default class TenantSpreadSheet extends React.Component {
                 columns[i]["width"] = LEFT_FIXED_WIDTH;
             }
         }
-        delete columns[columns.length-1].width; //let the last column auto-adjust - very important to properly fit in;
+        if(columns.length > 0){
+            delete columns[columns.length-1].width; //let the last column auto-adjust - very important to properly fit in;
+        }
         columns.push({
             title: 'Actions', dataIndex: 'actions', key: 'actions', fixed: 'right', width: RIGHT_FIXED_WIDTH,
             render: (text, record) => {
