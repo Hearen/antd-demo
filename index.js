@@ -49,7 +49,7 @@ ReactDOM.render(
         {/*<br/>*/}
       {/*</TabPane>*/}
     {/*</Tabs>*/}
-      <h2 style={{margin: "48px 16px"}}>Demo for Tenant Tag Management</h2>
+      <h2 style={{margin: "16px 48px"}}>Demo for Tenant Tag Management</h2>
   </div >
     </LocaleProvider>
   , document.getElementById('root'));
