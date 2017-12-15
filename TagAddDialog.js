@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Modal, Button, Input, Select, } from 'antd';
+import { Form, Modal, Button, Input, Select, Alert, } from 'antd';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
@@ -9,14 +9,29 @@ export class TagAddDialog extends React.Component {
         this.state = {
             visible: false,
             tagName: "",
+            isTagDuplicated: false,
+            isTagEmpty: true,
             defaultValue: "",
         };
+        this.existedColumns = props.existedColumns;
         this.addTag = props.addTag;
     }
 
+    isTagEqual = (a, b) => {
+        return a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase();
+    }
+
+
     onTagNameChange = (e) => {
+        let tagName = e.target.value;
+        let isTagEmpty = tagName.length === 0;
+        let index = this.existedColumns.findIndex( val => this.isTagEqual(val, tagName));
+        console.log(this.existedColumns);
+        let isTagDuplicated = index > -1;
         this.setState({
-            tagName: e.target.value,
+            tagName,
+            isTagDuplicated,
+            isTagEmpty,
         });
     }
 
@@ -31,24 +46,36 @@ export class TagAddDialog extends React.Component {
             visible: true,
         });
     }
-    handleOk = () => { //have to check the duplicates;
-        const { tagName, defaultValue } = this.state;
-        this.addTag(tagName, defaultValue);
+
+    handleOk = () => { //ToDo: have to make sure the tag is valid;
+        if(this.isTagValid()){
+            const { tagName, defaultValue } = this.state;
+            this.addTag(tagName, defaultValue);
+            this.resetDialog();
+        }
+    }
+
+    isTagValid = () => {
+        const { isTagEmpty, isTagDuplicated } = this.state;
+        return !isTagEmpty && !isTagDuplicated;
+    }
+
+    resetDialog = () => {
         this.setState({
             visible: false,
+            tagName: "",
+            isTagDuplicated: false,
+            isTagEmpty: true,
         });
     }
 
     handleCancel = () => {
-        this.setState({ visible: false });
+        this.resetDialog();
     }
+
     render() {
-        const { visible, } = this.state;
-        const types = ["Integer", "Float", "String", "Date", "Number"]
-        const children = [];
-        types.forEach((val, i) => {
-            children.push(<Option key={i.toString(36) + i}>{val}</Option>);
-        });
+        this.existedColumns = this.props.existedColumns;
+        const { tagName, defaultValue, visible, isTagDuplicated, isTagEmpty} = this.state;
         return (
             <div>
                 <Modal
@@ -65,21 +92,27 @@ export class TagAddDialog extends React.Component {
                 >
                     <Form>
                         <FormItem>
-                            <Input size="large" value={this.state.tagName} placeholder="Tag Name" onChange={this.onTagNameChange}/>
+                            <Input size="large" value={tagName} placeholder="Tag Name" onChange={this.onTagNameChange}/>
+                            {
+                                visible && isTagEmpty?
+                                    <Alert
+                                        size="small"
+                                        style={{
+                                            margin: "5px 0px"
+                                        }}
+                                        message="Tag cannot be empty" type="warning" showIcon />
+                                    :
+                                    <Alert
+                                        size="small"
+                                        style={{
+                                            display: isTagDuplicated? 'block' : 'none',
+                                            margin: "5px 0px 0px 0px"
+                                        }}
+                                        message="Duplicated! Tag already exists!" type="error" showIcon />
+                            }
                         </FormItem>
                         <FormItem>
-                            <Input size="large" value={this.state.defaultValue} placeholder="Default Value" onChange={this.onDefaultValueChange}/>
-                        </FormItem>
-                        <FormItem>
-                            <Select
-                                mode="multiple"
-                                allowClear
-                                size="large"
-                                placeholder="Select the valid types"
-                                onChange={this.handleChange}
-                            >
-                                {children}
-                            </Select>
+                            <Input size="large" value={defaultValue} placeholder="Default Value" onChange={this.onDefaultValueChange}/>
                         </FormItem>
                     </Form>
                 </Modal>

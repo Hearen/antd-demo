@@ -35,7 +35,7 @@ export default class TenantSpreadSheet extends React.Component {
         for(var key in demo){
             columnsShownArr.push(key);
         }
-        this.allColumnsArr = [].concat(columnsShownArr);
+        let allColumnsArr = [].concat(columnsShownArr);
         let columns = this.initTableColumns(columnsShownArr);
         this.cacheData = data.map(item => ({...item}));
         this.state = {
@@ -44,29 +44,39 @@ export default class TenantSpreadSheet extends React.Component {
             columns,
             searchValue: "",
             columnsShownArr,
+            allColumnsArr,
             advancedShown: false,
         };
     }
 
     addColumn = (newTag, defaultValue) => {
-        const { columnsShownArr, data, dataSource } = this.state;
-        columnsShownArr.push(newTag);
+        let columnsShownArr = [...this.state.columnsShownArr, newTag];
+        let allColumnsArr = [...this.state.allColumnsArr, newTag];
         const columns = this.initTableColumns(columnsShownArr);
+        let data = [ ...this.state.data ];
         data.forEach((val) => {
             val[newTag] = defaultValue;
         });
+        let dataSource = [ ...this.state.dataSource ];
         dataSource.forEach((val) => {
             val[newTag] = defaultValue;
         });
         this.setState({
             columns,
             columnsShownArr,
+            allColumnsArr,
             data,
             dataSource,
         });
+        if(this.rightMostDiv) {
+            this.rightMostDiv.scrollIntoView('smooth');
+        }
     }
 
     updateColumns = (columnsShownArr) => {
+        if(columnsShownArr.length === 0) { //when there is no column show previous state;
+            columnsShownArr = this.state.columnsShownArr;
+        }
         const columns = this.initTableColumns(columnsShownArr);
         const dataSource = [].concat(this.state.dataSource); //update the dataSource along with columns to bind data;
         this.setState({
@@ -172,12 +182,18 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     renderColumns(text, record, column) {
+        const { columnsShownArr } = this.state;
         return (
-            <EditableCell
-                editable={record.editable}
-                value={text}
-                parentHandleChange={value => this.handleChange(value, record.key, column)}
-            />
+            <div ref={t => {
+                if(column === columnsShownArr[columnsShownArr.length-1]){
+                    this.rightMostDiv = t;
+                }}}>
+                <EditableCell
+                    editable={record.editable}
+                    value={text}
+                    parentHandleChange={value => this.handleChange(value, record.key, column)}
+                />
+            </div>
         );
     }
 
@@ -248,6 +264,7 @@ export default class TenantSpreadSheet extends React.Component {
     }
     render() {
         const scroll_x_width = LEFT_LIMIT*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-LEFT_LIMIT)*WIDTH;
+        const { allColumnsArr, columnsShownArr} = this.state;
         return (
             <div style={{margin: "32px 16px"}}>
                 <div style={{textAlign: "left", }}>
@@ -272,8 +289,8 @@ export default class TenantSpreadSheet extends React.Component {
 
                 >
                     <ColumnSelect
-                        allColumns={this.allColumnsArr}
-                        columnsShownArr={this.state.columnsShownArr}
+                        allColumns={allColumnsArr}
+                        columnsShown={columnsShownArr}
                         updateColumns={this.updateColumns}
                     />
                 </div>
@@ -281,13 +298,14 @@ export default class TenantSpreadSheet extends React.Component {
                     style={{margin: "16px"}}
                 >
                     <Table
-                        scroll={{x: scroll_x_width, y: '90vh'}}
+                        scroll={{x: scroll_x_width, y: 'auto'}}
                         bordered
                         dataSource={this.state.dataSource}
                         columns={this.state.columns}
                     />
                 </div>
                 <TagAddDialog
+                    existedColumns={allColumnsArr}
                     addTag={this.addColumn}
                     ref={tagAdd => { this.tagAddDialog = tagAdd; }}/>
             </div>

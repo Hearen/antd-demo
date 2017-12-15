@@ -15,7 +15,7 @@ let compareString = (a, b) => {
     return 0;
 }
 
-let sorter = (a, b) => {
+function sorter(a, b){
     if(isNumeric(a) && isNumeric(b)){
         return (+a) - (+b);
     } else {

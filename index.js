@@ -18,6 +18,7 @@ function callback(key) {
 ReactDOM.render(
     <LocaleProvider locale={enUS}>
   <div>
+      <h2 style={{margin: "32px"}}>* Demo for Tenant Tag Management</h2>
       <TenantSpreadSheet/>
     {/*<Tabs defaultActiveKey="5" onChange={callback}>*/}
       {/*<TabPane tab="Extendable Table 2" key="1">*/}
@@ -49,7 +50,6 @@ ReactDOM.render(
         {/*<br/>*/}
       {/*</TabPane>*/}
     {/*</Tabs>*/}
-      <h2 style={{margin: "16px 48px"}}>Demo for Tenant Tag Management</h2>
   </div >
     </LocaleProvider>
   , document.getElementById('root'));
