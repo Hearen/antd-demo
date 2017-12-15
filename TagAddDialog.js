@@ -92,7 +92,8 @@ export class TagAddDialog extends React.Component {
                 >
                     <Form>
                         <FormItem>
-                            <Input size="large" value={tagName} placeholder="Tag Name" onChange={this.onTagNameChange}/>
+                            <Input size="large" value={tagName} placeholder="Tag Name"
+                                   onChange={this.onTagNameChange}/>
                             {
                                 visible && isTagEmpty?
                                     <Alert
@@ -112,7 +113,8 @@ export class TagAddDialog extends React.Component {
                             }
                         </FormItem>
                         <FormItem>
-                            <Input size="large" value={defaultValue} placeholder="Default Value" onChange={this.onDefaultValueChange}/>
+                            <Input size="large" value={defaultValue} placeholder="Default Value"
+                                   onChange={this.onDefaultValueChange}/>
                         </FormItem>
                     </Form>
                 </Modal>

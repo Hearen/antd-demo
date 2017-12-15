@@ -16,7 +16,9 @@ export default class ColumnSelect extends React.Component {
         const options = [];
         const { columnsShown, allColumns } = this.props;
         allColumns.forEach((val, i) => {
-            options.push(<Option key={val}>{val}</Option>); //this key is used to cooperate with defaultValue (checked);
+            if(columnsShown.findIndex( shown => val===shown ) === -1){
+                options.push(<Option key={val}>{val}</Option>); //this key is used to cooperate with defaultValue (checked);
+            }
         });
         return (
             <Select

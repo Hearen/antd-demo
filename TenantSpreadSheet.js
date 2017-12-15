@@ -139,7 +139,7 @@ export default class TenantSpreadSheet extends React.Component {
                         <span> | </span>
                         <a onClick={() => { this.cloneRecord(record.key); }}>
                             <Icon type="copy"/>
-                            Clone</a>
+                            Copy</a>
                     </div>
                 );
             },
