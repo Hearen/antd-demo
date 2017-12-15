@@ -8,10 +8,6 @@ import { data as DATA, header as HEADER } from './Data';
 const Search = Input.Search;
 const Option = Select.Option;
 
-const demo = {"name": '丸一鋼管株式会社 - ', "tenantAccount": "ap-northeast - ", "landscape": "develop - ", "convAppCIDR": "", "convAdminCIDR": "",
-    "name - test - ": '丸一鋼管株式会社 - test - ', "tenantAccount - test - ": "ap-northeast - test - ", "landscape - test ": "develop - test - ", "convAppCIDR-test": "", "convAdminCIDR-test": "",
-    "index": '77', "zabbixTenantName": "Demo - ", "hueExitIP": "10.101.136.", "hueRemoteClient": "192.168.183.", "password": "r005-yqvs-"};
-
 const LEFT_LIMIT = 2;
 const LEFT_FIXED_WIDTH = 300;
 const RIGHT_FIXED_WIDTH = 250;
@@ -235,9 +231,20 @@ export default class TenantSpreadSheet extends React.Component {
         })
     }
 
-    // cloneRecord = (key) => {
-    //     console.log(key);
-    // }
+    addNewRecord = () => {
+        let newRecord = {};
+        const { allColumnsArr, data, dataSource } = this.state;
+        allColumnsArr.forEach((val) => {
+            newRecord[val] = "";
+        });
+        newRecord["key"] = data.length+Date.now();
+        let newData = [newRecord, ...data,];
+        let newDataSource = [newRecord, ...dataSource,];
+        this.setState({
+            data: newData,
+            dataSource: newDataSource,
+        }, ()=>{newRecord.editable = true;});
+    }
 
     cloneRecord = (key) => {
         const newData = cloneRecordAfterByKey(this.state.data, key);
@@ -266,10 +273,11 @@ export default class TenantSpreadSheet extends React.Component {
                     <a size="large" onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
                     <div style={{float: "right", margin: "16px"}}>
                         <Button style={{ margin: "0 5px"}} size="large"  value="default">Export</Button>
-                        <Button style={{ margin: "0 5px"}} size="large" value="primary">Import</Button>
-                        <Button style={{margin: "0 16px", }} size="large" onClick={()=>{
+                        <Button style={{ margin: "0 5px"}} size="large" value="default">Import</Button>
+                        <Button style={{margin: "0 5px", }} size="large" onClick={()=>{
                             this.tagAddDialog.showModal();
-                        }} type="primary" icon="plus"> New Tag</Button>
+                        }} type="default" icon="plus">New Tag</Button>
+                        <Button style={{margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Record</Button>
                     </div>
                 </div>
                 <div

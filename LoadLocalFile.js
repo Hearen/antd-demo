@@ -5,8 +5,8 @@ const Dragger = Upload.Dragger;
 export class LoadLocalFile extends React.Component{
     const props = {
         name: 'file',
-        multiple: true,
-        showUploadList: false,
+        multiple: false,
+        showUploadList: true,
         action: '//jsonplaceholder.typicode.com/posts/',
         onChange(info) {
             const status = info.file.status;

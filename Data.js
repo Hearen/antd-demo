@@ -79,10 +79,6 @@ const values = [
 ];
 
 const data = [];
-console.log(header.length);
-for(let i = 0; i < values.length; ++i){
-    console.log(values[i].length);
-}
 
 values.forEach((val, i) => {
     let record = {};
