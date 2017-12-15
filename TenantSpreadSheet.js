@@ -4,6 +4,7 @@ import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 import ColumnSelect from "./ColumnSelect";
 import {cloneRecordAfterByKey, sorter as mySorter} from './Tools';
+import { data as DATA, header as HEADER } from './Data';
 const Search = Input.Search;
 const Option = Select.Option;
 
@@ -12,31 +13,21 @@ const demo = {"name": '丸一鋼管株式会社 - ', "tenantAccount": "ap-northe
     "index": '77', "zabbixTenantName": "Demo - ", "hueExitIP": "10.101.136.", "hueRemoteClient": "192.168.183.", "password": "r005-yqvs-"};
 
 const LEFT_LIMIT = 2;
-const LEFT_FIXED_WIDTH = 200;
+const LEFT_FIXED_WIDTH = 300;
 const RIGHT_FIXED_WIDTH = 250;
-const WIDTH = 200;
+const WIDTH = 250;
 
 export default class TenantSpreadSheet extends React.Component {
     constructor(props) {
         super(props);
-        let data = [];
-        for (let i = 0; i < 100; ++i) {
-            let instance = Object.assign({}, demo);
-            for(var key in instance){
-                instance[key] = instance[key]+i;
-            }
-            instance["convAppCIDR"] = '10.101.136.0/22';
-            instance["convAdminCIDR"] = '10.200.112.0/24';
-            instance["key"] = instance.name+i; //used to uniquely identify the record;
-            data.push(instance);
-        }
-        let columnsShownArr = [];
-        this.allColumnsArr = [];
-        for(var key in demo){
-            columnsShownArr.push(key);
-        }
-        let allColumnsArr = [].concat(columnsShownArr);
+        let data = DATA;
+        data.forEach((val, i) => {
+            val["key"] = i;
+        });
+        let columnsShownArr = [...HEADER]
+        let allColumnsArr = [...HEADER];
         let columns = this.initTableColumns(columnsShownArr);
+
         this.cacheData = data.map(item => ({...item}));
         this.state = {
             data,
@@ -298,8 +289,9 @@ export default class TenantSpreadSheet extends React.Component {
                     style={{margin: "16px"}}
                 >
                     <Table
-                        scroll={{x: scroll_x_width, y: 'auto'}}
+                        scroll={{x: scroll_x_width, y: '65vh'}}
                         bordered
+                        pagination={true}
                         dataSource={this.state.dataSource}
                         columns={this.state.columns}
                     />
