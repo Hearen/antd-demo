@@ -48,19 +48,15 @@ export default class TenantSpreadSheet extends React.Component {
         };
     }
 
-    addActions = () => {
-        let newColumns = Object.assign({}, ...this.state.columns);
-    }
-
-    addColumn = (newTag) => { //ToDo: columnsShownArr is not correct (remove some first and then add);
+    addColumn = (newTag, defaultValue) => {
         const { columnsShownArr, data, dataSource } = this.state;
         columnsShownArr.push(newTag);
         const columns = this.initTableColumns(columnsShownArr);
         data.forEach((val) => {
-            val[newTag] = "";
+            val[newTag] = defaultValue;
         });
         dataSource.forEach((val) => {
-            val[newTag] = "";
+            val[newTag] = defaultValue;
         });
         this.setState({
             columns,
@@ -148,11 +144,12 @@ export default class TenantSpreadSheet extends React.Component {
         }
         else {
             const reg = new RegExp(searchText, 'gi');
+            const { columnsShownArr } = this.state;
             newDataSource = this.state.data.map((record) => {
                 let newRecord = Object.assign({}, record);
                 let matchCount = 0;
-                for(let key in record){
-                    console.log(record[key]);
+                for(let i = 0; i < columnsShownArr.length; ++i) {
+                    let key = columnsShownArr[i];
                     let match = (record[key]+"").match(reg);
                     if(!match) {
                         continue;

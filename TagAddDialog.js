@@ -9,6 +9,7 @@ export class TagAddDialog extends React.Component {
         this.state = {
             visible: false,
             tagName: "",
+            defaultValue: "",
         };
         this.addTag = props.addTag;
     }
@@ -19,13 +20,20 @@ export class TagAddDialog extends React.Component {
         });
     }
 
+    onDefaultValueChange = (e) => {
+        this.setState({
+            defaultValue: e.target.value,
+        })
+    }
+
     showModal = () => {
         this.setState({
             visible: true,
         });
     }
     handleOk = () => { //have to check the duplicates;
-        this.addTag(this.state.tagName)
+        const { tagName, defaultValue } = this.state;
+        this.addTag(tagName, defaultValue);
         this.setState({
             visible: false,
         });
@@ -58,6 +66,9 @@ export class TagAddDialog extends React.Component {
                     <Form>
                         <FormItem>
                             <Input size="large" value={this.state.tagName} placeholder="Tag Name" onChange={this.onTagNameChange}/>
+                        </FormItem>
+                        <FormItem>
+                            <Input size="large" value={this.state.defaultValue} placeholder="Default Value" onChange={this.onDefaultValueChange}/>
                         </FormItem>
                         <FormItem>
                             <Select
