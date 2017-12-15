@@ -64,6 +64,7 @@ export class TagAddDialog extends React.Component {
         this.setState({
             visible: false,
             tagName: "",
+            defaultValue: "",
             isTagDuplicated: false,
             isTagEmpty: true,
         });
