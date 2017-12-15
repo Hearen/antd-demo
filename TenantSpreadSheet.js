@@ -5,6 +5,7 @@ import {TagAddDialog} from "./TagAddDialog";
 import ColumnSelect from "./ColumnSelect";
 import {cloneRecordAfterByKey, sorter as mySorter} from './Tools';
 import { data as DATA, header as HEADER } from './Data';
+import Papa from 'papaparse';
 const Search = Input.Search;
 const Option = Select.Option;
 
@@ -260,6 +261,22 @@ export default class TenantSpreadSheet extends React.Component {
             advancedShown: !this.state.advancedShown,
         });
     }
+
+    handleFileUpload = (e) => {
+        console.log(e);
+        console.log(e.target.files[0]);
+        let file = e.target.files[0];
+        let data;
+        Papa.parse(file, {
+            header: true,
+            dynamicTyping: true,
+            complete: function(results, file) {
+                data = results;
+                console.log(data);
+            },
+            error: () => { console.log("parsing failed!"); }
+        });
+    }
     render() {
         const scroll_x_width = LEFT_LIMIT*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-LEFT_LIMIT)*WIDTH;
         const { allColumnsArr, columnsShownArr} = this.state;
@@ -308,6 +325,7 @@ export default class TenantSpreadSheet extends React.Component {
                     existedColumns={allColumnsArr}
                     addTag={this.addColumn}
                     ref={tagAdd => { this.tagAddDialog = tagAdd; }}/>
+                <input style={{margin: "32px"}} type="file" id="csv-file" name="files" onChange={this.handleFileUpload}/>
             </div>
         )
     }
