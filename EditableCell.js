@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table, Input, Icon, Button, Popconfirm } from 'antd';
+const TextArea = Input;
 
 export default class EditableCell extends React.Component {
     constructor(props){
@@ -36,6 +37,7 @@ export default class EditableCell extends React.Component {
                                 value={value}
                                 onChange={this.handleChange}
                                 onPressEnter={this.check}
+                                ref={t => { t && t.focus(); }}
                             />
                             <Icon
                                 type="check"
@@ -44,7 +46,7 @@ export default class EditableCell extends React.Component {
                             />
                         </div>
                         :
-                        <div className="editable-cell-text-wrapper">
+                        <div onDoubleClick={this.edit} className="editable-cell-text-wrapper">
                             {value || ' '}
                             <Icon
                                 type="edit"

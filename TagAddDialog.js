@@ -81,7 +81,7 @@ export class TagAddDialog extends React.Component {
             <div>
                 <Modal
                     visible={visible}
-                    title="Add New Tag"
+                    title="Add New Column"
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
@@ -93,7 +93,7 @@ export class TagAddDialog extends React.Component {
                 >
                     <Form>
                         <FormItem>
-                            <Input size="large" value={tagName} placeholder="Tag Name"
+                            <Input size="large" value={tagName} placeholder="Column Name"
                                    onChange={this.onTagNameChange}/>
                             {
                                 visible && isTagEmpty?
@@ -102,7 +102,7 @@ export class TagAddDialog extends React.Component {
                                         style={{
                                             margin: "5px 0px"
                                         }}
-                                        message="Tag cannot be empty" type="warning" showIcon />
+                                        message="Column name cannot be empty" type="warning" showIcon />
                                     :
                                     <Alert
                                         size="small"
@@ -110,7 +110,7 @@ export class TagAddDialog extends React.Component {
                                             display: isTagDuplicated? 'block' : 'none',
                                             margin: "5px 0px 0px 0px"
                                         }}
-                                        message="Duplicated! Tag already exists!" type="error" showIcon />
+                                        message="Duplicated! This column name already exists!" type="error" showIcon />
                             }
                         </FormItem>
                         <FormItem>

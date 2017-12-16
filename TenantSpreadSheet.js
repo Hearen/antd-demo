@@ -119,15 +119,15 @@ export default class TenantSpreadSheet extends React.Component {
                                     Edit</a>
                         }
                         <span> | </span>
-                        <Popconfirm title="Sure to delete?" onConfirm={() => this.removeRecord(record.key)}>
-                            <a href="#">
-                                <Icon type="delete"/>
-                                Delete</a>
-                        </Popconfirm>
-                        <span> | </span>
                         <a onClick={() => { this.cloneRecord(record.key); }}>
                             <Icon type="copy"/>
                             Copy</a>
+                        <span> | </span>
+                        <Popconfirm title="Sure to delete?" onConfirm={() => this.removeRecord(record.key)}>
+                            <a style={{color: "red"}} href="#">
+                                <Icon type="delete"/>
+                                Delete</a>
+                        </Popconfirm>
                     </div>
                 );
             },
@@ -293,8 +293,8 @@ export default class TenantSpreadSheet extends React.Component {
                         <Button style={{ margin: "0 5px"}} size="large" value="default">Import</Button>
                         <Button style={{margin: "0 5px", }} size="large" onClick={()=>{
                             this.tagAddDialog.showModal();
-                        }} type="default" icon="plus">New Tag</Button>
-                        <Button style={{margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Record</Button>
+                        }} type="default" icon="plus">Add Column</Button>
+                        <Button style={{margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Row</Button>
                     </div>
                 </div>
                 <div
