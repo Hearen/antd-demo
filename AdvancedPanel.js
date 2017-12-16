@@ -2,7 +2,7 @@ import React from 'react';
 import { Select } from 'antd';
 const Option = Select.Option;
 
-export default class ColumnSelect extends React.Component {
+export default class AdvancedPanel extends React.Component {
     constructor(props){
         super(props);
         this.updateColumns = props.updateColumns;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Input, Icon, Button, Popconfirm, Menu, Dropdown, Select, } from 'antd';
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
-import ColumnSelect from "./ColumnSelect";
+import AdvancedPanel from './AdvancedPanel';
 import {cloneRecordAfterByKey, sorter as mySorter} from './Tools';
 import { data as DATA, header as HEADER } from './Data';
 import Papa from 'papaparse';
@@ -304,7 +304,7 @@ export default class TenantSpreadSheet extends React.Component {
                     }}
 
                 >
-                    <ColumnSelect
+                    <AdvancedPanel
                         allColumns={allColumnsArr}
                         columnsShown={columnsShownArr}
                         updateColumns={this.updateColumns}
@@ -315,8 +315,7 @@ export default class TenantSpreadSheet extends React.Component {
                 >
                     <Table
                         scroll={{x: scroll_x_width, y: '65vh'}}
-                        bordered
-                        pagination={true}
+                        pagination={false}
                         dataSource={this.state.dataSource}
                         columns={this.state.columns}
                     />
