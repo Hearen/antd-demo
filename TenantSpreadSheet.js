@@ -255,7 +255,7 @@ export default class TenantSpreadSheet extends React.Component {
         this.setState({
             data: newData,
             dataSource: newDataSource,
-        });
+        }, () => { this.editRecord(key); });
     }
 
     toggleAdvancedPanel = () => {

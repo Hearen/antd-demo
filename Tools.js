@@ -26,7 +26,7 @@ function sorter(a, b){
 function cloneRecordAfterByKey(arr, key){
     let index = arr.findIndex((val) => val.key==key);
     let newRecord = Object.assign({}, arr[index]);
-    newRecord.key += ''+index;
+    newRecord.key += ''+index+Date.now();
     let newArr = arr.map(item => item);
     newArr.splice(index, 0, newRecord);
     return newArr;
