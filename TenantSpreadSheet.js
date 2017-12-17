@@ -9,10 +9,9 @@ import Papa from 'papaparse';
 const Search = Input.Search;
 const Option = Select.Option;
 
-const LEFT_LIMIT = 2;
-const LEFT_FIXED_WIDTH = 300;
-const RIGHT_FIXED_WIDTH = 250;
-const WIDTH = 250;
+const LEFT_FIXED_WIDTH = 250;
+const RIGHT_FIXED_WIDTH = 200;
+const WIDTH = 200;
 
 export default class TenantSpreadSheet extends React.Component {
     constructor(props) {
@@ -34,6 +33,7 @@ export default class TenantSpreadSheet extends React.Component {
             columnsShownArr,
             allColumnsArr,
             advancedShown: false,
+            leftFixedNum: 0,
         };
     }
 
@@ -56,12 +56,10 @@ export default class TenantSpreadSheet extends React.Component {
             data,
             dataSource,
         });
-        if(this.rightMostDiv) {
-            this.rightMostDiv.scrollIntoView('smooth');
-        }
     }
 
     updateColumns = (columnsShownArr) => {
+        console.log(this.state.leftFixedNum);
         if(columnsShownArr.length === 0) { //when there is no column show previous state;
             columnsShownArr = this.state.columnsShownArr;
         }
@@ -89,10 +87,20 @@ export default class TenantSpreadSheet extends React.Component {
         return columns;
     }
 
+    updateFixedNum = (newFixedNum) => {
+        this.setState({
+            leftFixedNum: newFixedNum,
+        }, () => { this.updateColumns(this.state.columnsShownArr); });
+    }
+
     //Memo: width, fixed attribute in column and scroll attribute in table is the key to enable fixing sides;
     adjustColumns = (columns) => {
-        if(columns.length > LEFT_LIMIT){
-            for(var i = 0; i < LEFT_LIMIT; ++i){
+        let leftFixedNum = 0;
+        if(this.state) {
+            leftFixedNum = this.state.leftFixedNum;
+        }
+        if(columns.length > leftFixedNum){
+            for(var i = 0; i < leftFixedNum; ++i){
                 columns[i]["fixed"] = "left";
                 columns[i]["width"] = LEFT_FIXED_WIDTH;
             }
@@ -170,18 +178,12 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     renderColumns(text, record, column) {
-        const { columnsShownArr } = this.state;
         return (
-            <div ref={t => {
-                if(column === columnsShownArr[columnsShownArr.length-1]){
-                    this.rightMostDiv = t;
-                }}}>
-                <EditableCell
-                    editable={record.editable}
-                    value={text}
-                    parentHandleChange={value => this.handleChange(value, record.key, column)}
-                />
-            </div>
+            <EditableCell
+                editable={record.editable}
+                value={text}
+                parentHandleChange={value => this.handleChange(value, record.key, column)}
+            />
         );
     }
 
@@ -278,8 +280,8 @@ export default class TenantSpreadSheet extends React.Component {
         });
     }
     render() {
-        const scroll_x_width = LEFT_LIMIT*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-LEFT_LIMIT)*WIDTH;
-        const { allColumnsArr, columnsShownArr} = this.state;
+        const { leftFixedNum, allColumnsArr, columnsShownArr} = this.state;
+        const scroll_x_width = leftFixedNum*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-leftFixedNum)*WIDTH;
         return (
             <div style={{margin: "32px 16px"}}>
                 <div style={{textAlign: "left", }}>
@@ -308,6 +310,7 @@ export default class TenantSpreadSheet extends React.Component {
                         allColumns={allColumnsArr}
                         columnsShown={columnsShownArr}
                         updateColumns={this.updateColumns}
+                        updateFixedNum={this.updateFixedNum}
                     />
                 </div>
                 <div
