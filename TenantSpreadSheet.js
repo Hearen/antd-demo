@@ -1,9 +1,9 @@
 import React from 'react';
-import { Table, Input, Icon, Button, Popconfirm, Alert, Menu, Dropdown, Select, } from 'antd';
+import { Table, Input, Icon, Button, Popconfirm, Alert, message, Select, } from 'antd';
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 import AdvancedPanel from './AdvancedPanel';
-import {cloneRecordAfterByKey, sorter as mySorter} from './Tools';
+import {cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile, sorter as mySorter} from './Tools';
 import { data as DATA, header as HEADER } from './Data';
 import Papa from 'papaparse';
 import TagManagementMenu from "./TagManagementMenu";
@@ -337,12 +337,24 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     exportSelected = () => {
-        console.log("exporting the selected: ");
+        const {  columnsShownArr, } = this.state;
+        const selectedRows = this.selectedRows;
+        if(selectedRows===undefined || selectedRows.length===0){
+            message.error("Please select first");
+        } else {
+            let arr = convertMapArrToCSVArr(columnsShownArr, this.selectedRows);
+            saveArrayToCSVFile(arr);
+        }
     }
 
     render() {
         const { leftFixedNum, allColumnsArr, columnsShownArr, isRecordValid, recordErrorDetail,  } = this.state;
         const scroll_x_width = leftFixedNum*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-leftFixedNum)*WIDTH;
+        const rowSelection = {
+            onChange: (selectedRowKeys, selectedRows) => { //all columns will be selected even the hidden;
+                this.selectedRows = selectedRows;
+            },
+        };
         return (
             <div style={{margin: "32px 16px"}}>
                 <div style={{textAlign: "left", }}>
@@ -388,6 +400,7 @@ export default class TenantSpreadSheet extends React.Component {
                     <Table
                         scroll={{x: scroll_x_width, y: '65vh'}}
                         pagination={false}
+                        rowSelection={rowSelection}
                         dataSource={this.state.dataSource}
                         columns={this.state.columns}
                     />
@@ -396,6 +409,8 @@ export default class TenantSpreadSheet extends React.Component {
                     ref = { t => { this.tagAddDialog = t; }}
                     existedColumns={allColumnsArr}
                     addTag={this.addColumn} />
+
+                <input style={{margin: "32px"}} type="file" id="csv-file" name="files" onChange={this.handleFileUpload}/>
             </div>
         )
     }
