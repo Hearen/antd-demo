@@ -76,7 +76,7 @@ export class TagAddDialog extends React.Component {
 
     render() {
         this.existedColumns = this.props.existedColumns;
-        const { tagName, defaultValue, visible, isTagDuplicated, isTagEmpty} = this.state;
+        const {tagName, defaultValue, visible, isTagDuplicated, isTagEmpty} = this.state;
         return (
             <div>
                 <Modal

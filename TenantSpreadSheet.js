@@ -1,11 +1,12 @@
 import React from 'react';
-import { Table, Input, Icon, Button, Popconfirm, Menu, Dropdown, Select, } from 'antd';
+import { Table, Input, Icon, Button, Popconfirm, Alert, Menu, Dropdown, Select, } from 'antd';
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 import AdvancedPanel from './AdvancedPanel';
 import {cloneRecordAfterByKey, sorter as mySorter} from './Tools';
 import { data as DATA, header as HEADER } from './Data';
 import Papa from 'papaparse';
+import TagManagementMenu from "./TagManagementMenu";
 const Search = Input.Search;
 const Option = Select.Option;
 
@@ -34,6 +35,8 @@ export default class TenantSpreadSheet extends React.Component {
             allColumnsArr,
             advancedShown: false,
             leftFixedNum: 0,
+            isRecordValid: true,
+            recordErrorDetail: "",
         };
     }
 
@@ -48,6 +51,27 @@ export default class TenantSpreadSheet extends React.Component {
         let dataSource = [ ...this.state.dataSource ];
         dataSource.forEach((val) => {
             val[newTag] = defaultValue;
+        });
+        this.setState({
+            columns,
+            columnsShownArr,
+            allColumnsArr,
+            data,
+            dataSource,
+        });
+    }
+
+    removeColumn = (tag) => {
+        let columnsShownArr = this.state.columnsShownArr.filter(val => val!==tag);
+        let allColumnsArr = this.state.allColumnsArr.filter(val => val!==tag);
+        const columns = this.initTableColumns(columnsShownArr);
+        let data = [ ...this.state.data ];
+        data.forEach((val) => {
+            delete val[tag];
+        });
+        let dataSource = [ ...this.state.dataSource ];
+        dataSource.forEach((val) => {
+            delete val[tag];
         });
         this.setState({
             columns,
@@ -94,6 +118,7 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     //Memo: width, fixed attribute in column and scroll attribute in table is the key to enable fixing sides;
+    //the width is essential to make the alignment acceptable;
     adjustColumns = (columns) => {
         let leftFixedNum = 0;
         if(this.state) {
@@ -197,6 +222,19 @@ export default class TenantSpreadSheet extends React.Component {
         }
     }
 
+    isRecordValid = (record) => {
+        const { allColumnsArr } = this.state;
+        for(let i = 0; i < allColumnsArr.length; ++i){
+            let key = allColumnsArr[i];
+            if(record.hasOwnProperty(key)){
+                if(record[key] !== undefined && record[key].toString().trim() !== ''){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     editRecord = (key) => {
         const newData = [...this.state.dataSource];
@@ -209,6 +247,13 @@ export default class TenantSpreadSheet extends React.Component {
     saveEdit = (key) => {
         let newData = [...this.state.dataSource]; //get the current real-time data;
         let target = newData.filter(item => key === item.key)[0];
+        let isRecordValid = this.isRecordValid(target);
+        this.setState({
+            isRecordValid,
+        });
+        if(!isRecordValid) {
+            return ;
+        }
         if (target) {
             delete target.editable;
             this.setState({ dataSource: newData });
@@ -220,6 +265,13 @@ export default class TenantSpreadSheet extends React.Component {
         let target = newData.filter(item => key === item.key)[0];
         if (target) {
             Object.assign(target, this.cacheData.filter(item => key === item.key)[0]);
+            let isRecordValid = this.isRecordValid(target);
+            this.setState({
+                isRecordValid,
+            });
+            if(!isRecordValid) {
+                return ;
+            }
             delete target.editable;
             this.setState({ dataSource: newData });
         }
@@ -279,8 +331,17 @@ export default class TenantSpreadSheet extends React.Component {
             error: () => { console.log("parsing failed!"); }
         });
     }
+
+    showTagAddDialog = () => { //do not ever forget the arrow function to bind `this`;
+        this.tagAddDialog.showModal();
+    }
+
+    exportSelected = () => {
+        console.log("exporting the selected: ");
+    }
+
     render() {
-        const { leftFixedNum, allColumnsArr, columnsShownArr} = this.state;
+        const { leftFixedNum, allColumnsArr, columnsShownArr, isRecordValid, recordErrorDetail,  } = this.state;
         const scroll_x_width = leftFixedNum*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-leftFixedNum)*WIDTH;
         return (
             <div style={{margin: "32px 16px"}}>
@@ -291,11 +352,13 @@ export default class TenantSpreadSheet extends React.Component {
                         style={{width: "50%", margin: "16px", }} />
                     <a size="large" onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
                     <div style={{float: "right", margin: "16px"}}>
-                        <Button style={{ margin: "0 5px"}} size="large"  value="default">Export</Button>
+                        <TagManagementMenu
+                            columnsShown={columnsShownArr}
+                            removeColumn={this.removeColumn}
+                            showTagAddDialog={this.showTagAddDialog}
+                        />
+                        <Button style={{ margin: "0 5px"}} onClick={this.exportSelected} size="large"  value="default">Export</Button>
                         <Button style={{ margin: "0 5px"}} size="large" value="default">Import</Button>
-                        <Button style={{margin: "0 5px", }} size="large" onClick={()=>{
-                            this.tagAddDialog.showModal();
-                        }} type="default" icon="plus">Add Column</Button>
                         <Button style={{margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Row</Button>
                     </div>
                 </div>
@@ -313,6 +376,12 @@ export default class TenantSpreadSheet extends React.Component {
                         updateFixedNum={this.updateFixedNum}
                     />
                 </div>
+                <div style={{
+                    display: isRecordValid? 'none' : 'block',
+                    textAlign: 'center',
+                }}>
+                    <Alert message={"Invalid record"+(recordErrorDetail? ':':'')+recordErrorDetail} type="error" showIcon />
+                </div>
                 <div
                     style={{margin: "16px"}}
                 >
@@ -324,10 +393,9 @@ export default class TenantSpreadSheet extends React.Component {
                     />
                 </div>
                 <TagAddDialog
+                    ref = { t => { this.tagAddDialog = t; }}
                     existedColumns={allColumnsArr}
-                    addTag={this.addColumn}
-                    ref={tagAdd => { this.tagAddDialog = tagAdd; }}/>
-                <input style={{margin: "32px"}} type="file" id="csv-file" name="files" onChange={this.handleFileUpload}/>
+                    addTag={this.addColumn} />
             </div>
         )
     }

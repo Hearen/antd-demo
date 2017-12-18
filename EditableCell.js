@@ -37,7 +37,6 @@ export default class EditableCell extends React.Component {
                                 value={value}
                                 onChange={this.handleChange}
                                 onPressEnter={this.check}
-                                ref={t => { t && t.focus(); }}
                             />
                             <Icon
                                 type="check"
