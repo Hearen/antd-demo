@@ -32,9 +32,17 @@ function cloneRecordAfterByKey(arr, key){
     return newArr;
 }
 
-function convertMapArrToCSVArr(header, arr){
+function convertMapArrToCSVArr(arr, header){
     if(arr===undefined || arr.length===0) return [[]];
     let csvArr = [];
+    if(header === undefined){
+        header = [];
+        for(let key in arr[0]){
+            if(arr[0].hasOwnProperty(key)){
+                header.push(key);
+            }
+        }
+    }
     csvArr.push(header);
     arr.forEach((record) => {
         let r = [];
@@ -59,4 +67,8 @@ function saveArrayToCSVFile(arr){
     link.click();
 }
 
-export { sorter, cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile };
+function generateStableKey(val, i){
+    return val.repeat(i) + '-' + i + '-' + (''+i).repeat(i) + '-' + val.repeat(i);
+}
+
+export { sorter, cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile, generateStableKey };

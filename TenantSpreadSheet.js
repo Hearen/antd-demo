@@ -3,8 +3,11 @@ import { Table, Input, Icon, Upload, Button, Popconfirm, Alert, message, Select,
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 import AdvancedPanel from './AdvancedPanel';
-import {cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile, sorter as mySorter} from './Tools';
-import { data as DATA, header as HEADER } from './Data';
+import {
+    cloneRecordAfterByKey, convertMapArrToCSVArr, generateStableKey, saveArrayToCSVFile,
+    sorter as mySorter
+} from './Tools';
+import { loadData } from './Data';
 import Papa from 'papaparse';
 import TagManagementMenu from "./TagManagementMenu";
 import {LoadLocalFile} from "./LoadLocalFile";
@@ -18,27 +21,56 @@ const WIDTH = 200;
 export default class TenantSpreadSheet extends React.Component {
     constructor(props) {
         super(props);
-        let data = DATA;
-        data.forEach((val, i) => {
-            val["key"] = i;
-        });
-        let columnsShownArr = [...HEADER]
-        let allColumnsArr = [...HEADER];
-        let columns = this.initTableColumns(columnsShownArr);
-
-        this.cacheData = data.map(item => ({...item}));
+        // let { header, data } = loadData();
+        // data.forEach((val, i) => {
+        //     val["key"] = i;
+        // });
+        // let columnsShownArr = [...header]
+        // let allColumnsArr = [...header];
+        // let columns = this.initTableColumns(columnsShownArr);
+        //
+        // this.cacheData = data.map(item => ({...item}));
         this.state = {
-            data,
-            dataSource: data,
-            columns,
+            data: [],
+            dataSource: [],
+            columns: [],
             searchValue: "",
-            columnsShownArr,
-            allColumnsArr,
+            columnsShownArr: [],
+            allColumnsArr: [],
             advancedShown: false,
             leftFixedNum: 0,
             isRecordValid: true,
             recordErrorDetail: "",
         };
+    }
+
+    componentDidMount() {
+        this.updateTableData();
+    }
+
+    updateTableData = (arr) => {
+        const { header, data } = loadData(arr);
+        this.updateTheWholeTable(header, data);
+    }
+
+    updateTheWholeTable = (header, data) => {
+        data.forEach((val, i) => {
+            val["key"] = generateStableKey('', i);
+        });
+        let columnsShownArr = [...header]
+        let allColumnsArr = [...header];
+        let columns = this.initTableColumns(columnsShownArr);
+        this.cacheData = data.map(item => ({...item}));
+        this.setState({
+            data,
+            dataSource: data,
+            columns,
+            columnsShownArr,
+            allColumnsArr,
+            isRecordValid: true,
+            recordErrorDetail: "",
+        });
+
     }
 
     addColumn = (newTag, defaultValue) => {
@@ -103,10 +135,11 @@ export default class TenantSpreadSheet extends React.Component {
             columns.push({
                 title: val,
                 dataIndex: val,
+                key: generateStableKey(val.toString(), i),
                 width: WIDTH, //if the alignment is an issue, set the width;
                 sorter: (a, b) => mySorter(a[val], b[val]), //return value is the base for sorting;
                 render: (text, record) => this.renderColumns(text, record, val),
-            })
+            });
         });
         this.adjustColumns(columns);
         return columns;
@@ -322,12 +355,11 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     exportSelected = () => {
-        const {  columnsShownArr, } = this.state;
         const selectedRows = this.selectedRows;
         if(selectedRows===undefined || selectedRows.length===0){
             message.error("Please select first");
         } else {
-            let arr = convertMapArrToCSVArr(columnsShownArr, this.selectedRows);
+            let arr = convertMapArrToCSVArr(this.selectedRows);
             saveArrayToCSVFile(arr);
         }
     }
@@ -361,6 +393,8 @@ export default class TenantSpreadSheet extends React.Component {
                                 icon='download'
                                 value="default">Export</Button>
                         <LoadLocalFile
+                            updateTable={this.updateTableData}
+                            test={() => alert("test")}
                         />
                         <Button style={{ margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Row</Button>
                     </div>

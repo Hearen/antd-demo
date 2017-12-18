@@ -15,7 +15,7 @@ function callback(key) {
 ReactDOM.render(
     <LocaleProvider locale={enUS}>
   <div>
-      <h2 style={{margin: "32px"}}>* Demo for Tenant Tag Management</h2>
+      <h2 style={{margin: "32px"}}></h2>
       <TenantSpreadSheet/>
   </div >
     </LocaleProvider>

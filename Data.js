@@ -1,4 +1,5 @@
-const header = ["Environment Name", "AWS Region", "Tenant↵Account", "Index", "Landscape", "Zabbix↵TenamtName", "AWS Info", "HUE Exit IP",
+
+const HEADER = ["Environment Name", "AWS Region", "Tenant↵Account", "Index", "Landscape", "Zabbix↵TenamtName", "AWS Info", "HUE Exit IP",
     "Conv app↵CIDR", "Conv admin↵CIDR", "Conv Remote Client (Shared among landscapes)", "HUE Remote Client (Shared among landscapes)",
     "Index of Core RemoteClient (Shared among landscapes)", "MKS↵利用↵↵NAT↵EIP↵公開", "CONV↵VPC↵拡張", "COMPANY_CODE↵for↵LogCrawler",
     "Password for Provisioning", "対象製品↵ for Provisioning", "注文契約書 確認日 for Provisioning", "接続年月日↵ for Provisioning"];
@@ -78,16 +79,33 @@ const values = [
     ["", "（契約状況不明）ヤマト運輸USA", "", "ayf5", "", "https://maiw.hue.worksap.com/hue/hue/ess/spreadsheet/main?essId=d3e08860-33ba-11e6-bf86-4ba0a0b974ea", "", "", "", "", "", "", "", "", "", "", "", "", "Accounts Payable ", "", ""],
 ];
 
-const data = [];
+let DATA = [];
 
 values.forEach((val, i) => {
     let record = {};
-    header.forEach((key, i) => {
+    HEADER.forEach((key, i) => {
         record[key] = val[i+1];
     });
-    data.push(record);
+    DATA.push(record);
 });
 
-export { header, data };
+
+function loadData(arr) {
+    if(arr===undefined || arr.length===0) {
+        return { header: HEADER, data: DATA }
+    }
+    let header = [...arr[0]];
+    let data = [];
+    for(let r = 1; r < arr.length; ++r){
+        let record = {};
+        for(let c = 0; c < header.length; ++c){
+            record[header[c]] = arr[r][c];
+        }
+        data.push(record);
+    }
+    return {header, data}
+}
+
+export { loadData };
 
 
