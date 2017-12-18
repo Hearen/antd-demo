@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "antd": "^2.1.0",
+    "papaparse": "^4.3.6",
     "react": "^15.1.0",
     "react-dom": "^15.1.0"
   },
