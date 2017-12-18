@@ -76,7 +76,7 @@ function saveArrayToCSVFile(arr){
 }
 
 function generateStableKey(val, i){
-    return val.repeat(i) + '-' + i + '-' + (''+i).repeat(i) + '-' + val.repeat(i);
+    return val.toString() + '-' + i + '-';
 }
 
 export { sorter, cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile, generateStableKey };

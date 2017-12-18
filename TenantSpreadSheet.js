@@ -55,7 +55,7 @@ export default class TenantSpreadSheet extends React.Component {
 
     updateTheWholeTable = (header, data) => {
         data.forEach((val, i) => {
-            val["key"] = generateStableKey('', i);
+            val["key"] = generateStableKey(val, i);
         });
         let columnsShownArr = [...header]
         let allColumnsArr = [...header];
