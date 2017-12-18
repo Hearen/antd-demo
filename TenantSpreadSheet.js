@@ -359,7 +359,7 @@ export default class TenantSpreadSheet extends React.Component {
         if(selectedRows===undefined || selectedRows.length===0){
             message.error("Please select first");
         } else {
-            let arr = convertMapArrToCSVArr(this.selectedRows);
+            let arr = convertMapArrToCSVArr(this.selectedRows, this.state.columnsShownArr);
             saveArrayToCSVFile(arr);
         }
     }
@@ -423,7 +423,7 @@ export default class TenantSpreadSheet extends React.Component {
                     style={{margin: "16px"}}
                 >
                     <Table
-                        scroll={{x: scroll_x_width, y: '65vh'}}
+                        scroll={{x: scroll_x_width, y: '70vh'}}
                         pagination={false}
                         rowSelection={rowSelection}
                         dataSource={this.state.dataSource}

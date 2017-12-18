@@ -57,12 +57,20 @@ function convertMapArrToCSVArr(arr, header){
 function saveArrayToCSVFile(arr){
     let csvString = "data:text/csv;charset=utf-8,";
     arr.forEach((row) => {
-        csvString += row.join(',')+'\r\n';
+        let s = '';
+        row.forEach((c, i) => {
+            c = c.toString();
+            if(c.indexOf(',') > -1) {
+                c = '"'+c+'"';
+            }
+            s += (i===0? '' : ',') + c;
+        })
+        csvString += s+'\r\n';
     })
     let encodedUri = encodeURI(csvString);
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "tenantDetails"+Date.now()+".csv");
+    link.setAttribute("download", "tenantDetails - "+Date.now()+".csv");
     document.body.appendChild(link); // Required for FF
     link.click();
 }

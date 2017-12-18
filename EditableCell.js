@@ -34,7 +34,7 @@ export default class EditableCell extends React.Component {
                     editable ?
                         <div className="editable-cell-input-wrapper">
                             <Input
-                                value={value}
+                                value={value.toString()}
                                 onChange={this.handleChange}
                                 onPressEnter={this.check}
                             />
