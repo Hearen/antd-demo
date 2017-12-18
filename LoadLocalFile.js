@@ -1,37 +1,39 @@
 import React from 'react';
-import { Upload, Icon, message } from 'antd';
-const Dragger = Upload.Dragger;
+import Papa from 'papaparse';
+import { Upload, Button, Icon, message } from 'antd';
 
 export class LoadLocalFile extends React.Component{
-    const props = {
-        name: 'file',
-        multiple: false,
-        showUploadList: true,
-        action: '//jsonplaceholder.typicode.com/posts/',
-        onChange(info) {
-            const status = info.file.status;
-            if (status !== 'uploading') {
-                console.log(info.file, info.fileList);
-            }
-            if (status === 'done') {
-                message.success(`${info.file.name} file uploaded successfully.`);
-            } else if (status === 'error') {
-                message.error(`${info.file.name} file upload failed.`);
-            }
-        },
-    };
+
+    handleFileUpload = (file) => {
+        let data;
+        Papa.parse(file, {
+            header: true,
+            dynamicTyping: true,
+            complete: function(results, file) {
+                data = results;
+                console.log(data);
+            },
+            error: () => { console.log("parsing failed!"); }
+        });
+    }
 
     render() {
+        const props = {
+            action:'',
+            accept: '.csv',
+            showUploadList: false,
+            onChange : (e)  => {
+                console.log(e.target);
+                let file = e.file.originFileObj;
+                this.handleFileUpload(file);
+            },
+        };
         return (
-            <div style={{ marginTop: 16, height: 180 }}>
-                <Dragger {...props}>
-                    <p className="ant-upload-drag-icon">
-                        <Icon type="inbox" />
-                    </p>
-                    <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                    <p className="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
-                </Dragger>
-            </div>
+            <Upload {...props}>
+                <Button size="large">
+                    <Icon type="upload" /> Import
+                </Button>
+            </Upload>
         );
     }
 }

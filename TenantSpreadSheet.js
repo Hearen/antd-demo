@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Input, Icon, Button, Popconfirm, Alert, message, Select, } from 'antd';
+import { Table, Input, Icon, Upload, Button, Popconfirm, Alert, message, Select, } from 'antd';
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 import AdvancedPanel from './AdvancedPanel';
@@ -7,6 +7,7 @@ import {cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile, sorter
 import { data as DATA, header as HEADER } from './Data';
 import Papa from 'papaparse';
 import TagManagementMenu from "./TagManagementMenu";
+import {LoadLocalFile} from "./LoadLocalFile";
 const Search = Input.Search;
 const Option = Select.Option;
 
@@ -316,22 +317,6 @@ export default class TenantSpreadSheet extends React.Component {
         });
     }
 
-    handleFileUpload = (e) => {
-        console.log(e);
-        console.log(e.target.files[0]);
-        let file = e.target.files[0];
-        let data;
-        Papa.parse(file, {
-            header: true,
-            dynamicTyping: true,
-            complete: function(results, file) {
-                data = results;
-                console.log(data);
-            },
-            error: () => { console.log("parsing failed!"); }
-        });
-    }
-
     showTagAddDialog = () => { //do not ever forget the arrow function to bind `this`;
         this.tagAddDialog.showModal();
     }
@@ -363,15 +348,21 @@ export default class TenantSpreadSheet extends React.Component {
                         onSearch={this.handleSearch}
                         style={{width: "50%", margin: "16px", }} />
                     <a size="large" onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
-                    <div style={{float: "right", margin: "16px"}}>
+                    <div style={{float: "right", margin: "16px", display: 'flex'}}>
                         <TagManagementMenu
+                            style={{ margin: '0 5px'}}
                             columnsShown={columnsShownArr}
                             removeColumn={this.removeColumn}
                             showTagAddDialog={this.showTagAddDialog}
                         />
-                        <Button style={{ margin: "0 5px"}} onClick={this.exportSelected} size="large"  value="default">Export</Button>
-                        <Button style={{ margin: "0 5px"}} size="large" value="default">Import</Button>
-                        <Button style={{margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Row</Button>
+                        <Button style={{  margin: "0 5px"}}
+                                onClick={this.exportSelected}
+                                size="large"
+                                icon='download'
+                                value="default">Export</Button>
+                        <LoadLocalFile
+                        />
+                        <Button style={{ margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Row</Button>
                     </div>
                 </div>
                 <div
@@ -409,8 +400,6 @@ export default class TenantSpreadSheet extends React.Component {
                     ref = { t => { this.tagAddDialog = t; }}
                     existedColumns={allColumnsArr}
                     addTag={this.addColumn} />
-
-                <input style={{margin: "32px"}} type="file" id="csv-file" name="files" onChange={this.handleFileUpload}/>
             </div>
         )
     }

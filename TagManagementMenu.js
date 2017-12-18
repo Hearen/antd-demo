@@ -7,7 +7,7 @@ export default class TagManagementMenu extends React.Component {
     render() {
         const { columnsShown, showTagAddDialog, removeColumn } = this.props;
         const menu = (
-            <Menu>
+            <Menu size='large'>
                 <Menu.Item>
                     <a style={{margin: "0 5px", }} size="large" onClick={()=>{ showTagAddDialog(); }}
                        type="default" >Add Column </a>
@@ -30,7 +30,7 @@ export default class TagManagementMenu extends React.Component {
         );
         return (
             <Dropdown overlay={menu} size="large" >
-                <Button style={{ margin: "0 5px"}} >
+                <Button size='large' style={{ margin: "0 5px"}} >
                     Column Management <Icon type="down" />
                 </Button>
             </Dropdown>
