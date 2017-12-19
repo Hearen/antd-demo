@@ -160,12 +160,18 @@ export default class TenantSpreadSheet extends React.Component {
     adjustColumns = (columns) => {
         const { fixedColumnsArr } = this.state;
         let fixedColumns = [], unFixedColumns = [];
+        for(let i = 0; i < fixedColumnsArr.length; ++i){
+            let fixed = fixedColumnsArr[i];
+            columns.forEach((val) => {
+                if(val.dataIndex === fixed){
+                    val["fixed"] = "left";
+                    val["width"] = LEFT_FIXED_WIDTH;
+                    fixedColumns.push(val)
+                }
+            })
+        }
         for(let i = 0; i < columns.length; ++i){
-            if(fixedColumnsArr.findIndex(fixed => fixed===columns[i].dataIndex) > -1){
-                columns[i]["fixed"] = "left";
-                columns[i]["width"] = LEFT_FIXED_WIDTH;
-                fixedColumns.push(columns[i]);
-            } else if(i != columns.length) {
+            if(fixedColumnsArr.findIndex(fixed => fixed===columns[i].dataIndex) === -1){
                 columns[i]["width"] = WIDTH; //if the alignment is an issue, set the width;
                 unFixedColumns.push(columns[i]);
             }
