@@ -56,7 +56,7 @@ export default class TenantSpreadSheet extends React.Component {
 
     updateTheWholeTable = (header, data) => {
         data.forEach((val, i) => {
-            val["key"] = generateStableKey(val, i);
+            val["key"] = generateStableKey('#', val.id);
         });
         let columnsShownArr = [...header]
         let allColumnsArr = [...header];
@@ -135,7 +135,7 @@ export default class TenantSpreadSheet extends React.Component {
             columns.push({
                 title: val,
                 dataIndex: val,
-                key: generateStableKey(val.toString(), i),
+                key: val,
                 sorter: (a, b) => mySorter(a[val], b[val]), //return value is the base for sorting;
                 render: (text, record) => this.renderColumns(text, record, val),
             });
@@ -337,7 +337,7 @@ export default class TenantSpreadSheet extends React.Component {
         allColumnsArr.forEach((val) => {
             newRecord[val] = "";
         });
-        newRecord["key"] = generateStableKey(newRecord, data.length);
+        newRecord["key"] = generateStableKey('#', data.length+10000);
         let newData = [newRecord, ...data,];
         let newDataSource = [newRecord, ...dataSource,];
         this.setState({
