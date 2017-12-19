@@ -15,7 +15,7 @@ const Search = Input.Search;
 const Option = Select.Option;
 
 const LEFT_FIXED_WIDTH = 250;
-const RIGHT_FIXED_WIDTH = 250;
+const RIGHT_FIXED_WIDTH = 300;
 const WIDTH = 200;
 
 export default class TenantSpreadSheet extends React.Component {
@@ -200,6 +200,12 @@ export default class TenantSpreadSheet extends React.Component {
                         <a onClick={this.showRevisionDialog}>
                             <Icon type="calendar"/>
                             Revision</a>
+                        <span> | </span>
+                        <Popconfirm title="Sure to delete?" onConfirm={() => this.removeRecord(record.key)}>
+                            <a style={{color: "red"}} href="#">
+                                <Icon type="delete"/>
+                                Delete</a>
+                        </Popconfirm>
                     </div>
                 );
             },
