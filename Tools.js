@@ -59,7 +59,7 @@ function saveArrayToCSVFile(arr){
     arr.forEach((row) => {
         let s = '';
         row.forEach((c, i) => {
-            c = c.toString();
+            c = ''+c;
             if(c.indexOf(',') > -1) {
                 c = '"'+c+'"';
             }

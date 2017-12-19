@@ -15,7 +15,7 @@ const Search = Input.Search;
 const Option = Select.Option;
 
 const LEFT_FIXED_WIDTH = 250;
-const RIGHT_FIXED_WIDTH = 200;
+const RIGHT_FIXED_WIDTH = 300;
 const WIDTH = 200;
 
 export default class TenantSpreadSheet extends React.Component {
@@ -151,6 +151,11 @@ export default class TenantSpreadSheet extends React.Component {
         }, () => { this.updateColumns(this.state.columnsShownArr); });
     }
 
+    showRevisionDialog = () => {
+        message.config({top: 200, duration: 3});
+        message.info("Waiting to merge with revision");
+    }
+
     //Memo: width, fixed attribute in column and scroll attribute in table is the key to enable fixing sides;
     //the width is essential to make the alignment acceptable;
     adjustColumns = (columns) => {
@@ -189,6 +194,10 @@ export default class TenantSpreadSheet extends React.Component {
                         <a onClick={() => { this.cloneRecord(record.key); }}>
                             <Icon type="copy"/>
                             Copy</a>
+                        <span> | </span>
+                        <a onClick={this.showRevisionDialog}>
+                            <Icon type="calendar"/>
+                            Revision</a>
                         <span> | </span>
                         <Popconfirm title="Sure to delete?" onConfirm={() => this.removeRecord(record.key)}>
                             <a style={{color: "red"}} href="#">
@@ -381,22 +390,26 @@ export default class TenantSpreadSheet extends React.Component {
                         style={{width: "50%", margin: "16px", }} />
                     <a size="large" onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
                     <div style={{float: "right", margin: "16px", display: 'flex'}}>
-                        <TagManagementMenu
-                            style={{ margin: '0 5px'}}
-                            columnsShown={columnsShownArr}
-                            removeColumn={this.removeColumn}
-                            showTagAddDialog={this.showTagAddDialog}
-                        />
-                        <Button style={{  margin: "0 5px"}}
-                                onClick={this.exportSelected}
-                                size="large"
-                                icon='download'
-                                value="default">Export</Button>
-                        <LoadLocalFile
-                            updateTable={this.updateTableData}
-                            test={() => alert("test")}
-                        />
-                        <Button style={{ margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Row</Button>
+                        <div>
+                            <Button style={{  margin: "0 5px"}}
+                                    onClick={this.exportSelected}
+                                    size="large"
+                                    icon='download'
+                                    value="default">Export</Button>
+                            <LoadLocalFile
+                                updateTable={this.updateTableData}
+                                test={() => alert("test")}
+                            />
+                        </div>
+                        <div style={{margin: "0 16px"}}>
+                            <TagManagementMenu
+                                style={{ margin: '0 5px'}}
+                                columnsShown={columnsShownArr}
+                                removeColumn={this.removeColumn}
+                                showTagAddDialog={this.showTagAddDialog}
+                            />
+                            <Button style={{ margin: "0 5px", }} size="large" onClick={this.addNewRecord} type="primary" icon="plus">Add Row</Button>
+                        </div>
                     </div>
                 </div>
                 <div
