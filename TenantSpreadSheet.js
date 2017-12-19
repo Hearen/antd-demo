@@ -39,6 +39,7 @@ export default class TenantSpreadSheet extends React.Component {
             allColumnsArr: [],
             advancedShown: false,
             leftFixedNum: 0,
+            fixedColumnsArr: [],
             isRecordValid: true,
             recordErrorDetail: "",
         };
@@ -116,7 +117,6 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     updateColumns = (columnsShownArr) => {
-        console.log(this.state.leftFixedNum);
         if(columnsShownArr.length === 0) { //when there is no column show previous state;
             columnsShownArr = this.state.columnsShownArr;
         }
@@ -130,13 +130,12 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     initTableColumns = (columnsShownArr) => {
-        let columns = [];
+        const columns = [];
         columnsShownArr.forEach((val, i) => {
             columns.push({
                 title: val,
                 dataIndex: val,
                 key: generateStableKey(val.toString(), i),
-                width: WIDTH, //if the alignment is an issue, set the width;
                 sorter: (a, b) => mySorter(a[val], b[val]), //return value is the base for sorting;
                 render: (text, record) => this.renderColumns(text, record, val),
             });
@@ -145,9 +144,9 @@ export default class TenantSpreadSheet extends React.Component {
         return columns;
     }
 
-    updateFixedNum = (newFixedNum) => {
+    updateFixedColumns = (fixedColumnsArr) => {
         this.setState({
-            leftFixedNum: newFixedNum,
+            fixedColumnsArr,
         }, () => { this.updateColumns(this.state.columnsShownArr); });
     }
 
@@ -159,19 +158,22 @@ export default class TenantSpreadSheet extends React.Component {
     //Memo: width, fixed attribute in column and scroll attribute in table is the key to enable fixing sides;
     //the width is essential to make the alignment acceptable;
     adjustColumns = (columns) => {
-        let leftFixedNum = 0;
-        if(this.state) {
-            leftFixedNum = this.state.leftFixedNum;
-        }
-        if(columns.length > leftFixedNum){
-            for(var i = 0; i < leftFixedNum; ++i){
+        const { fixedColumnsArr } = this.state;
+        let fixedColumns = [], unFixedColumns = [];
+        for(let i = 0; i < columns.length; ++i){
+            if(fixedColumnsArr.findIndex(fixed => fixed===columns[i].dataIndex) > -1){
                 columns[i]["fixed"] = "left";
                 columns[i]["width"] = LEFT_FIXED_WIDTH;
+                fixedColumns.push(columns[i]);
+            } else if(i != columns.length) {
+                columns[i]["width"] = WIDTH; //if the alignment is an issue, set the width;
+                unFixedColumns.push(columns[i]);
             }
         }
         if(columns.length > 0){
             delete columns[columns.length-1].width; //let the last column auto-adjust - very important to properly fit in;
         }
+        columns.splice(0, columns.length, ...fixedColumns, ...unFixedColumns);
         columns.push({
             title: 'Actions', dataIndex: 'actions', key: 'actions', fixed: 'right', width: RIGHT_FIXED_WIDTH,
             render: (text, record) => {
@@ -374,7 +376,8 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     render() {
-        const { leftFixedNum, allColumnsArr, columnsShownArr, isRecordValid, recordErrorDetail,  } = this.state;
+        const { fixedColumnsArr, allColumnsArr, columnsShownArr, isRecordValid, recordErrorDetail,  } = this.state;
+        const leftFixedNum = fixedColumnsArr.length;
         const scroll_x_width = leftFixedNum*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-leftFixedNum)*WIDTH;
         const rowSelection = {
             onChange: (selectedRowKeys, selectedRows) => { //all columns will be selected even the hidden;
@@ -422,8 +425,9 @@ export default class TenantSpreadSheet extends React.Component {
                     <AdvancedPanel
                         allColumns={allColumnsArr}
                         columnsShown={columnsShownArr}
+                        fixedColumns={fixedColumnsArr}
                         updateColumns={this.updateColumns}
-                        updateFixedNum={this.updateFixedNum}
+                        updateFixedColumns={this.updateFixedColumns}
                     />
                 </div>
                 <div style={{

@@ -6,40 +6,47 @@ export default class AdvancedPanel extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            fixFirstChecked: props.leftFixedNum>0,
+            fixedColumnsArr: props.fixedColumnsArr,
         }
         this.updateColumns = props.updateColumns;
-        this.updateFixedNum = props.updateFixedNum;
+        this.updateFixedColumns = props.updateFixedColumns;
     }
 
     handleChange = (value) => {
         this.updateColumns(value);
     }
 
-    handleFixedColumnChange = (e) => {
-        let fixFirstChecked = e.target.checked;
-        console.log(fixFirstChecked);
-        this.setState({
-            fixFirstChecked,
-        }, this.updateFixedNum(fixFirstChecked? 1 : 0));
-
+    handleFixedColumnsChange = (value) => {
+        this.updateFixedColumns(value);
     }
 
     render() {
         const options = [];
-        const {columnsShown, allColumns} = this.props;
+        const {columnsShown, allColumns, fixedColumns } = this.props;
         allColumns.forEach((val, i) => {
             if (columnsShown.findIndex(shown => val === shown) === -1) {
                 options.push(<Option key={val}>{val}</Option>); //this key is used to cooperate with defaultValue (checked);
             }
         });
+        const fixedOptions = [];
+        columnsShown.forEach((val) => {
+            if (fixedColumns.findIndex(shown => val === shown) === -1) {
+                fixedOptions.push(<Option key={val}>{val}</Option>); //this key is used to cooperate with defaultValue (checked);
+            }
+        });
         return (
             <div>
-                <Checkbox
-                    checked={this.state.fixFirstChecked}
-                    style={{width: "15vw" }}
-                    onChange={this.handleFixedColumnChange}>
-                    Fix First Column</Checkbox>
+                <Select
+                    mode="multiple"
+                    size="large"
+                    autoFocus
+                    placeholder="Fixed Columns"
+                    value={fixedColumns}
+                    onChange={this.handleFixedColumnsChange}
+                    style={{width: '15vw', }}
+                >
+                    {fixedOptions}
+                </Select>
                 <Select
                     mode="multiple"
                     size="large"
@@ -47,7 +54,7 @@ export default class AdvancedPanel extends React.Component {
                     placeholder="Please select columns"
                     value={columnsShown}
                     onChange={this.handleChange}
-                    style={{width: '80vw',}}
+                    style={{width: '80vw',marginLeft: "16px",}}
                 >
                     {options}
                 </Select>
