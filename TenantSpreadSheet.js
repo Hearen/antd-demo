@@ -337,7 +337,7 @@ export default class TenantSpreadSheet extends React.Component {
         allColumnsArr.forEach((val) => {
             newRecord[val] = "";
         });
-        newRecord["key"] = data.length+Date.now();
+        newRecord["key"] = generateStableKey(newRecord, data.length);
         let newData = [newRecord, ...data,];
         let newDataSource = [newRecord, ...dataSource,];
         this.setState({
