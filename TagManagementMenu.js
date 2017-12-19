@@ -29,11 +29,8 @@ export default class TagManagementMenu extends React.Component {
             </Menu>
         );
         return (
-            <Dropdown overlay={menu} size="large" >
-                <Button size='large' style={{ margin: "0 5px"}} >
-                    Column Management <Icon type="down" />
-                </Button>
-            </Dropdown>
+            <Button style={{margin: "0 5px", }} size="large" onClick={()=>{ showTagAddDialog(); }}
+               type="default" >Add Column </Button>
         );
     }
 }
