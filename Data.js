@@ -86,6 +86,7 @@ values.forEach((val, i) => {
     HEADER.forEach((key, i) => {
         record[key] = val[i+1];
     });
+    record['id'] = i;
     DATA.push(record);
 });
 
@@ -101,6 +102,7 @@ function loadData(arr) {
         for(let c = 0; c < header.length; ++c){
             record[header[c]] = arr[r][c];
         }
+        record['id'] = r;
         data.push(record);
     }
     return {header, data}

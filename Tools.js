@@ -26,7 +26,7 @@ function sorter(a, b){
 function cloneRecordAfterByKey(arr, key){
     let index = arr.findIndex((val) => val.key==key);
     let newRecord = Object.assign({}, arr[index]);
-    newRecord.key += ''+index+Date.now();
+    newRecord.key += newRecord.id = generateStableKey('#', arr.length+10000);
     let newArr = arr.map(item => item);
     newArr.splice(index, 0, newRecord);
     return newArr;
@@ -76,13 +76,7 @@ function saveArrayToCSVFile(arr){
 }
 
 function generateStableKey(val, i){
-    let s = '';
-    for(let key in val){
-        if(val.hasOwnProperty(key)){
-            s += ''+key;
-        }
-    }
-    return s + '-' + i;
+    return val + '-' + i;
 }
 
 export { sorter, cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile, generateStableKey };
