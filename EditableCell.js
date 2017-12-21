@@ -5,10 +5,6 @@ const TextArea = Input;
 export default class EditableCell extends React.Component {
     constructor(props){
         super(props);
-        this.state = {
-            value: this.props.value,
-            editable: this.props.editable,
-        }
         this.recordHandleChange = props.parentHandleChange;
     }
     handleChange = (e) => {
@@ -17,41 +13,21 @@ export default class EditableCell extends React.Component {
         this.recordHandleChange(value);
     }
 
-    check = () => {
-        this.setState({ editable: false });
-    }
-
-    edit = () => {
-        this.setState({ editable: true });
-    }
-
     render() {
-        let { value, editable } = { ...this.state, ...this.props };
-        editable = this.state.editable || this.props.editable;
+        let { value, editable } =  this.props;
         return (
             <div className="editable-cell">
                 {
                     editable ?
                         <div className="editable-cell-input-wrapper">
                             <Input
-                                value={value.toString()}
+                                value={value}
                                 onChange={this.handleChange}
-                                onPressEnter={this.check}
-                            />
-                            <Icon
-                                type="check"
-                                className="editable-cell-icon-check"
-                                onClick={this.check}
                             />
                         </div>
                         :
-                        <div onDoubleClick={this.edit} className="editable-cell-text-wrapper">
+                        <div  className="editable-cell-text-wrapper">
                             {value || ' '}
-                            <Icon
-                                type="edit"
-                                className="editable-cell-icon"
-                                onClick={this.edit}
-                            />
                         </div>
                 }
             </div>
