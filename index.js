@@ -14,10 +14,10 @@ function callback(key) {
 
 ReactDOM.render(
     <LocaleProvider locale={enUS}>
-  <div>
-      <h2 style={{margin: "32px"}}></h2>
-      <TenantSpreadSheet/>
-  </div >
+      <div>
+          <h2 style={{margin: "32px"}}></h2>
+          <TenantSpreadSheet/>
+      </div >
     </LocaleProvider>
   , document.getElementById('root'));
 
