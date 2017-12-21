@@ -26,6 +26,7 @@
     "expect": "^1.20.1",
     "pre-commit": "1.x",
     "prettier-eslint": "^8.3.1",
+    "prop-type": "0.0.1",
     "redbox-react": "^1.2.6"
   },
   "pre-commit": [
