@@ -21,15 +21,6 @@ const WIDTH = 200;
 export default class TenantSpreadSheet extends React.Component {
     constructor(props) {
         super(props);
-        // let { header, data } = loadData();
-        // data.forEach((val, i) => {
-        //     val["key"] = i;
-        // });
-        // let columnsShownArr = [...header]
-        // let allColumnsArr = [...header];
-        // let columns = this.initTableColumns(columnsShownArr);
-        //
-        // this.cacheData = data.map(item => ({...item}));
         this.state = {
             data: [],
             dataSource: [],
@@ -202,6 +193,10 @@ export default class TenantSpreadSheet extends React.Component {
                         <a onClick={() => { this.cloneRecord(record.key); }}>
                             <Icon type="copy"/>
                             Copy</a>
+                        <span> | </span>
+                        <a style={{color: 'red'}} onClick={() => { this.removeRecord(record.key); }}>
+                            <Icon type="delete"/>
+                            Delete</a>
                         <span> | </span>
                         <a onClick={this.showRevisionDialog}>
                             <Icon type="calendar"/>

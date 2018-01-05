@@ -10,8 +10,20 @@ export class LoadLocalFile extends React.Component{
         this.test = props.test;
     }
 
+    importTenant = (request) => {
+        const formData = new FormData();
+        formData.append('file', request);
+
+        return () => window.fetch(`./tenant/import`, {
+            method: 'POST',
+            headers: 'Content-Type=multipart/*',
+            body: formData,
+        });
+    }
+
     handleFileUpload = (file, callback) => {
         let data;
+        this.importTenant(file);
         Papa.parse(file, {
             header: true,
             dynamicTyping: true,
