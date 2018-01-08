@@ -12,8 +12,8 @@ import AdvancedPanel from './AdvancedPanel';
 import {
     getClonedKey, cloneRecordAfterByKey, convertMapArrToCSVArr, initFilterRecord, isRecordEmpty, saveArrayToCSVFile,
     sorter as mySorter, checkRecordValidity, restoreRecordValue, updateOrigin, getKey, hasEditable, restoreTarget,
-} from './Tools';
-import { updateTenant, loadData, buildTarget } from './Data';
+    updateTenant, loadData, buildTarget,
+} from './Utils';
 import UploadFile from './ImportCheck';
 import * as Const from './Const';
 
@@ -23,6 +23,8 @@ class TenantSpreadSheet extends React.Component {
   constructor(props) {
     super(props);
     this.filterInputs = {};
+    this.data = [];
+    this.tenantDict = {};
     this.state = {
       dataSource: [],
       columns: [],
@@ -48,33 +50,25 @@ class TenantSpreadSheet extends React.Component {
         .then((received) => {
           received = received.data;
           const tenantList = received.tenantList;
-          this.tagList = received.tagList; // all available tags;
-          this.tenantDict = {};
+          this.tagList = received.tagList;
           const { header, data } = loadData(tenantList, this.tagList, this.tenantDict);
           this.updateTheWholeTable(header, data);
         });
   }
 
   updateTheWholeTable = (header, data) => {
-    data.forEach((val) => {
-      val.key = val.id;
-    });
     const columnsShownArr = [...header];
     const allColumnsArr = [...header];
+    const columns = this.initTableColumns(columnsShownArr);
+    this.data = data;
+    this.cacheData = data.map(item => ({ ...item }));
     this.setState({
-      filterRecord: initFilterRecord(header),
-    }, () => {
-      const columns = this.initTableColumns(columnsShownArr);
-      this.data = data;
-      this.cacheData = data.map(item => ({ ...item }));
-      this.setState({
-        dataSource: [...data],
-        columns,
-        columnsShownArr,
-        allColumnsArr,
-        isRecordValid: true,
-        isLoading: false,
-      });
+      dataSource: data.map(item => ({ ...item })),
+      columns,
+      columnsShownArr,
+      allColumnsArr,
+      isRecordValid: true,
+      isLoading: false,
     });
   }
 
@@ -135,7 +129,7 @@ class TenantSpreadSheet extends React.Component {
 
   initTableColumns = (columnsShownArr) => {
     const columns = [];
-    columnsShownArr.forEach((column) => {
+    columnsShownArr.forEach((column, i) => {
       columns.push({
         title: (
                 (<div style={{ height: Const.HEADER_HEIGHT }}>
@@ -151,6 +145,7 @@ class TenantSpreadSheet extends React.Component {
                   >{column}</div>
                   <div style={{ marginTop: '4px' }}>
                     <Input
+                      tabIndex={i + 1}
                       ref={(filter) => { this.filterInputs[column] = filter; }}
                       onChange={(e) => { this.handleFilterInputChange(column, e); }}
                     />
@@ -172,7 +167,7 @@ class TenantSpreadSheet extends React.Component {
     }, () => { this.updateColumns(this.state.columnsShownArr); });
   }
 
-  showRevisionDialog = (key) => {
+  showRevisionDialog = () => {
     Message.info('Coming soon!');
     // window.console.log(key);
     // this.setState({ showRevision: true, selectedTenantId: key });
@@ -465,7 +460,7 @@ class TenantSpreadSheet extends React.Component {
                 newData.splice(insertIndex, 0, origin);
               } else {
                 const origin = newData.filter(item => item.key === target.key)[0];
-                updateOrigin(origin, target);
+                updateOrigin(origin, target, response);
               }
               delete target.editable;
               this.data = newData;
@@ -588,6 +583,11 @@ class TenantSpreadSheet extends React.Component {
         this.selectedRows = selectedRows;
       },
     };
+    let advancedPanelHeight = 0;
+    if (this.advancedPanelDiv) {
+      advancedPanelHeight = this.advancedPanelDiv.offsetHeight;
+    }
+    const verticalOffset = 190 + (advancedShown ? advancedPanelHeight : 0);
     return (
       <div>
         <Spin spinning={isLoading}>
@@ -616,19 +616,23 @@ class TenantSpreadSheet extends React.Component {
                   style={{ margin: '0 5px' }}
                   onClick={this.showTagAddDialog}
                   type="default"
-                >Add Column </Button>
+                  icon="plus"
+                > Column</Button>
                 <Button
                   style={{ margin: '0 5px' }}
                   onClick={this.addNewRecord}
                   type="primary"
                   icon="plus"
-                >Add Row</Button>
+                > Row</Button>
               </div>
             </div>
           </div>
           {
               advancedShown ?
-                <div style={{ margin: '0 16px' }} >
+                <div
+                  ref={(d) => { this.advancedPanelDiv = d; }}
+                  style={{ margin: '0 16px' }}
+                >
                   <AdvancedPanel
                     key={Date.now()}
                     allColumns={allColumnsArr}
@@ -653,7 +657,7 @@ class TenantSpreadSheet extends React.Component {
             style={{ margin: '16px' }}
           >
             <Table
-              scroll={{ x: scrollXWidth, y: 'calc(70vh - 100px)' }}
+              scroll={{ x: scrollXWidth, y: `calc(80vh - ${verticalOffset}px)` }}
               pagination={false}
               rowSelection={rowSelection}
               dataSource={dataSource}

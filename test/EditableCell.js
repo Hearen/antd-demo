@@ -11,12 +11,6 @@ export default class EditableCell extends React.Component {
     this.recordHandleChange = props.parentHandleChange;
   }
 
-  toggleHover = () => {
-    this.setState({
-      isHovering: !this.state.isHovering,
-    });
-  }
-
   handleChange = (e) => {
     const value = e.target.value;
     this.setState({ value });
@@ -39,7 +33,11 @@ export default class EditableCell extends React.Component {
     };
     const theStyle = this.state.isHovering ? { ...notHoveringStyle, ...hoverStyle } : { ...notHoveringStyle };
     return (
-      <div className="editable-cell" onMouseEnter={this.toggleHover} onMouseLeave={this.toggleHover}>
+      <div
+        className="editable-cell"
+        onMouseEnter={() => this.setState({ isHovering: true })}
+        onMouseLeave={() => this.setState({ isHovering: false })}
+      >
         {
             editable ?
               <div className="editable-cell-input-wrapper">
