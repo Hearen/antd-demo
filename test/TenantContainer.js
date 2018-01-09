@@ -15,7 +15,7 @@ import {
     updateTenant, loadData, buildTarget,
 } from './Utils';
 import UploadFile from './ImportCheck';
-import * as Const from './Const';
+import * as Const from '../Const';
 
 const Search = Input.Search;
 

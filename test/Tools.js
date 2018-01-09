@@ -1,4 +1,4 @@
-import { ESSENTIAL_FILEDS, UNIQUE_CONTRAINT } from './Const';
+import { ESSENTIAL_FILEDS, UNIQUE_CONTRAINT } from '../Const';
 
 const isNumeric = (s) => {
   const num = +s; // turn the string to number - strictly checking ('12..' -> NaN);

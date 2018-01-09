@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from 'antd';
-import * as Const from './Const';
+import * as Const from '../Const';
 
 export default class EditableCell extends React.Component {
   constructor(props) {

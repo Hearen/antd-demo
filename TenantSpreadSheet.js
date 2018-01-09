@@ -8,9 +8,9 @@ import {
     sorter as mySorter
 } from './Tools';
 import { loadData } from './Data';
-import Papa from 'papaparse';
 import TagManagementMenu from "./TagManagementMenu";
 import {LoadLocalFile} from "./LoadLocalFile";
+import * as Const from './Const';
 const Search = Input.Search;
 const Option = Select.Option;
 
@@ -120,15 +120,42 @@ export default class TenantSpreadSheet extends React.Component {
         });
     }
 
+    sortBy = (() => {
+        let isAscending = true;
+        return (column) => {
+            const dataSource = [...this.state.dataSource];
+            dataSource.sort((a, b) => mySorter(a[column], b[column]));
+            if (isAscending) {
+                dataSource.reverse();
+            }
+            isAscending = !isAscending;
+            this.setState({
+                dataSource,
+            });
+        };
+    })();
+
     initTableColumns = (columnsShownArr) => {
         const columns = [];
-        columnsShownArr.forEach((val, i) => {
+        columnsShownArr.forEach((column, i) => {
             columns.push({
-                title: val,
-                dataIndex: val,
-                key: val,
-                sorter: (a, b) => mySorter(a[val], b[val]), //return value is the base for sorting;
-                render: (text, record) => this.renderColumns(text, record, val),
+                title: (
+                    (<div style={{ height: Const.HEADER_HEIGHT }}>
+                        <div
+                            style={{ cursor: 'pointer',
+                                width: Const.WIDTH,
+                                height: Const.TEXT_HEIGHT,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                            }}
+                            onClick={() => { this.sortBy(column); }}
+                        >{column}</div>
+                    </div>)
+                ),
+                dataIndex: column,
+                key: column,
+                render: (text, record) => this.renderColumns(text, record, column),
             });
         });
         this.adjustColumns(columns);
@@ -176,7 +203,9 @@ export default class TenantSpreadSheet extends React.Component {
             render: (text, record) => {
                 const {editable} = record;
                 return (
-                    <div className="editable-row-operations">
+                    <div
+                        style={{height: Const.CELL_HEIGHT}}
+                        className="editable-row-operations">
                         {
                             editable ?
                                 <span>
@@ -244,11 +273,15 @@ export default class TenantSpreadSheet extends React.Component {
 
     renderColumns(text, record, column) {
         return (
+            <div
+                style={{height: Const.CELL_HEIGHT}}
+                >
             <EditableCell
                 editable={record.editable}
                 value={text}
                 parentHandleChange={value => this.handleChange(value, record.key, column)}
             />
+            </div>
         );
     }
 

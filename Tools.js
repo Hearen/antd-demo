@@ -6,7 +6,10 @@ let isNumeric = (s) => {
     return true;
 }
 
-let compareString = (a, b) => {
+let compareString = (a0, b0) => {
+    let a = a0 || '', b = b0 || '';
+    a = a.toLowerCase();
+    b = b.toLowerCase();
     if(a < b) { //string can compare but not do math calculation;
         return -1;
     } else if(a > b) {

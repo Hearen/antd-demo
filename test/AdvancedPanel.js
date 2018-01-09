@@ -1,6 +1,6 @@
 import React from 'react';
 import { Select, Tooltip } from 'antd';
-import * as Const from './Const';
+import * as Const from '../Const';
 
 const Option = Select.Option;
 
