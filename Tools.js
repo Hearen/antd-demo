@@ -82,4 +82,13 @@ function generateStableKey(val, i){
     return val + '-' + i;
 }
 
+export function hasEditable(dataSource){
+    for(let i = 0; i < dataSource.length; ++i){
+        if(dataSource[i].editable){
+            return true;
+        }
+    }
+    return false;
+
+}
 export { sorter, cloneRecordAfterByKey, convertMapArrToCSVArr, saveArrayToCSVFile, generateStableKey };

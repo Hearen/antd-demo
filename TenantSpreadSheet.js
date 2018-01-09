@@ -1,11 +1,11 @@
 import React from 'react';
-import { Table, Input, Icon, Upload, Button, Popconfirm, Alert, message, Select, } from 'antd';
+import { Table, Input, Icon, Upload, Button, Popconfirm, Alert, message as Message, Select, } from 'antd';
 import EditableCell from './EditableCell';
 import {TagAddDialog} from "./TagAddDialog";
 import AdvancedPanel from './AdvancedPanel';
 import {
     cloneRecordAfterByKey, convertMapArrToCSVArr, generateStableKey, saveArrayToCSVFile,
-    sorter as mySorter
+    sorter as mySorter, hasEditable,
 } from './Tools';
 import { loadData } from './Data';
 import TagManagementMenu from "./TagManagementMenu";
@@ -21,6 +21,7 @@ const WIDTH = 200;
 export default class TenantSpreadSheet extends React.Component {
     constructor(props) {
         super(props);
+        this.filterInputs = [];
         this.state = {
             data: [],
             dataSource: [],
@@ -55,7 +56,7 @@ export default class TenantSpreadSheet extends React.Component {
         this.cacheData = data.map(item => ({...item}));
         this.setState({
             data,
-            dataSource: data,
+            dataSource: data.map(item => ({...item})),
             columns,
             columnsShownArr,
             allColumnsArr,
@@ -151,6 +152,13 @@ export default class TenantSpreadSheet extends React.Component {
                             }}
                             onClick={() => { this.sortBy(column); }}
                         >{column}</div>
+                        <div style={{ marginTop: '4px' }}>
+                            <Input
+                                tabIndex={i + 1}
+                                ref={(filter) => { this.filterInputs[column] = filter; }}
+                                onChange={(e) => { this.handleFilterInputChange(column, e); }}
+                            />
+                        </div>
                     </div>)
                 ),
                 dataIndex: column,
@@ -160,6 +168,23 @@ export default class TenantSpreadSheet extends React.Component {
         });
         this.adjustColumns(columns);
         return columns;
+    }
+
+    handleFilterInputChange = (column, e) => {
+        const filterRecord = { ...this.state.filterRecord };
+        filterRecord[column] = e.target.value;
+        this.setState({
+            filterRecord,
+        }, this.handleColumnSearch);
+    }
+
+    resetFilter = () => {
+        this.state.columnsShownArr.forEach((key) => {
+            this.filterInputs[key].input.value = '';
+        });
+        this.setState({
+            filterRecord: initFilterRecord(this.state.allColumnsArr),
+        }, this.handleColumnSearch);
     }
 
     updateFixedColumns = (fixedColumnsArr) => {
@@ -199,7 +224,17 @@ export default class TenantSpreadSheet extends React.Component {
         }
         columns.splice(0, columns.length, ...fixedColumns, ...unFixedColumns);
         columns.push({
-            title: 'Actions', dataIndex: 'actions', key: 'actions', fixed: 'right', width: RIGHT_FIXED_WIDTH,
+            title: (
+                <div style={{ height: Const.HEADER_HEIGHT }}>
+                    <div>Actions </div>
+                    <div style={{ marginTop: '4px' }}>
+                        <Button onClick={this.resetFilter}>
+                            Clear Filters
+                        </Button>
+                    </div>
+                </div>
+            ),
+            dataIndex: 'actions', key: 'actions', fixed: 'right', width: RIGHT_FIXED_WIDTH,
             render: (text, record) => {
                 const {editable} = record;
                 return (
@@ -265,6 +300,40 @@ export default class TenantSpreadSheet extends React.Component {
                 }
                 return matchCount===0? null : newRecord;
             }).filter(record => !!record);
+        }
+        this.setState({
+            dataSource: newDataSource,
+        });
+    }
+
+    handleColumnSearch = () => { // if all is empty, reset dataSource using data;
+        if (hasEditable(this.state.dataSource)) {
+            Message.error('Save the edited before search!');
+            return;
+        }
+        const { columnsShownArr, filterRecord } = this.state;
+        const newDataSource = this.state.data.map((item) => {
+            const record = Object.assign({}, item);
+            for (let i = 0; i < columnsShownArr.length; ++i) {
+                const column = columnsShownArr[i];
+                const value = filterRecord[column];
+                if (value && value.trim().length > 0) {
+                    const reg = new RegExp(value, 'gi');
+                    const match = (`${record[column]}`).match(reg);
+                    if (!match) {
+                        return null;
+                    }
+                    if (!record[column]) {
+                        return null;
+                    }
+                    record[column] = (<span> {record[column].split(reg).map((text, j) => (
+                        j > 0 ? [<span style={{ color: 'red' }}>{match[0]}</span>, text] : text))} </span>);
+                }
+            }
+            return record;
+        }).filter(record => !!record);
+        if (newDataSource.length === 0) {
+            newDataSource.push({ key: 't', isSavior: true });
         }
         this.setState({
             dataSource: newDataSource,
