@@ -473,10 +473,10 @@ export default class TenantSpreadSheet extends React.Component {
     }
 
     render() {
-        const { fixedColumnsArr, allColumnsArr, columnsShownArr, isRecordValid, recordErrorDetail,  } = this.state;
+        const { dataSource, fixedColumnsArr, allColumnsArr, columnsShownArr, isRecordValid, recordErrorDetail,  } = this.state;
         const leftFixedNum = fixedColumnsArr.length;
         const scroll_x_width = leftFixedNum*LEFT_FIXED_WIDTH + RIGHT_FIXED_WIDTH + (this.state.columnsShownArr.length-leftFixedNum)*WIDTH;
-        const rowSelection = {
+        const rowSelection = dataSource[0] && dataSource[0].isSavior ? undefined : {
             onChange: (selectedRowKeys, selectedRows) => { //all columns will be selected even the hidden;
                 this.selectedRows = selectedRows;
             },
