@@ -487,7 +487,7 @@ export default class TenantSpreadSheet extends React.Component {
                     <Search
                         size="large"
                         onSearch={this.handleSearch}
-                        style={{width: "50%", margin: "16px", }} />
+                        style={{width: "calc(90% - 550px)", margin: "16px", }} />
                     <a size="large" onClick={() => { this.toggleAdvancedPanel(); }}>{this.state.advancedShown? "Hide" : "Advanced"}</a>
                     <div style={{float: "right", margin: "16px", display: 'flex'}}>
                         <div>
